@@ -1,24 +1,34 @@
+Body {
+  font-family: 'Poppins', sans-serif;
+}
+
 .App {
   text-align: center;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
-}
-
 .App-header {
   background-color: #222;
-  height: 150px;
+  height: 20px;
   padding: 20px;
   color: white;
 }
 
-.App-intro {
-  font-size: large;
+.App-header p {
+  font-size: 2em;
+  line-height: 20px;
+  padding: 0;
+  margin: 0;
 }
 
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.traders {
+  margin-left: 1em;
+}
+
+.traders p {
+  text-align: left;
+}
+
+.trades {
+  margin-left: 2em;
+  text-align: left;
 }
