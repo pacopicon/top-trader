@@ -28,7 +28,7 @@ Body {
   text-align: left;
 }
 
-.trades {
-  margin-left: 2em;
+.trades, .score {
+  margin-left: 1em;
   text-align: left;
 }

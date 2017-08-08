@@ -9,12 +9,12 @@ const Traders = ({ traders, trades, stocks }) =>
       <p>traders:</p>
       {traders.map((trader, i) =>
         <div key={i}>
-          <p>{trader.name}: {getTraderScore(trader, trades, stocks).score}</p>
           <div className="trades">
             <div>{trader.name}'s trades:
               <Trades trades={getTraderScore(trader, trades, stocks).trades} stocks={getTraderScore(trader, trades, stocks).stocks}/>
             </div>
           </div>
+          <p className="score">-->{trader.name}'s total score: {getTraderScore(trader, trades, stocks).score}</p>
         </div>
       )}
     </div>
