@@ -13,11 +13,11 @@ class Nav extends React.Component {
   renderBtn() {
     if (this.props.linkClicked) {
       return (
-        <button className="linkBtn" aria-hidden="true" name="this.props.linkClicked" value={this.props.linkClicked} onClick={() => this.props.handleLinkToggle(false)}>Stocks</button>
+        <button className="linkBtn" aria-hidden="true" name="this.props.linkClicked" value={this.props.linkClicked} onClick={() => this.props.handleLinkToggle(false)}><p>Stocks</p></button>
       )
     } else if (!this.props.linkClicked) {
       return (
-        <button className="linkBtn" aria-hidden="true" name="this.props.linkClicked" value={!this.props.linkClicked} onClick={() => this.props.handleLinkToggle(true)}>Traders</button>
+        <button className="linkBtn" aria-hidden="true" name="this.props.linkClicked" value={!this.props.linkClicked} onClick={() => this.props.handleLinkToggle(true)}><p>Traders</p></button>
       )
     }
   }
