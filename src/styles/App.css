@@ -1,6 +1,11 @@
 
 Body {
   font-family: 'Poppins', sans-serif;
+  /*font-family: 'Montserrat', sans-serif*/
+}
+
+.hidden {
+  display: none;
 }
 
 .App {
@@ -19,6 +24,10 @@ Body {
   line-height: 20px;
   padding: 0;
   margin: 0;
+}
+
+.linkBtn {
+  color: white;
 }
 
 .traders {

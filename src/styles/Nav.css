@@ -1,0 +1,17 @@
+nav {
+  background-color: black;
+}
+
+nav p {
+  color: white;
+}
+
+.linkBtn {
+  border-style: none;
+  border-radius: 0.5em;
+  background-color: white;
+}
+
+.linkBtn p {
+  color: black;
+}

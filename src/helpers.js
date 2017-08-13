@@ -31,7 +31,7 @@ export const getVWAP = (trade) => {
   const stocks = tradeData.stocks
   for (var b=0; b<stocks.length; b++) {
     if (stocks[b].symbol === trade.symbol) {
-      console.log("stocks[b].vwap = " + stocks[b].vwap)
+      // console.log("stocks[b].vwap = " + stocks[b].vwap)
       return stocks[b].vwap
     }
   }
