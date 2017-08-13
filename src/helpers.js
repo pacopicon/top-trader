@@ -36,3 +36,10 @@ export const getVWAP = (trade) => {
     }
   }
 }
+
+export const serializeProps = (arrayOfObjects, property) => {
+  const arrayOfProps = []
+
+  arrayOfObjects.map((obj) => arrayOfProps.push(obj[property]))
+  return arrayOfProps
+}

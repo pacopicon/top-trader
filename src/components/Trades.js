@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
-import { getVWAP } from './helpers';
-import './App.css';
+import { getVWAP, serializeProps } from '../helpers';
+import '../styles/App.css';
+import BarChart from './BarChart'
 
 const Trades = ({ trades, stocks }) =>
     <div>
@@ -12,6 +13,7 @@ const Trades = ({ trades, stocks }) =>
         : <div key={i}>{trade.quantity} shares of {trade.symbol} sold at ${trade.price} with a ${getVWAP(trade)} VWAP per share.<br/>
         -->Score = (VWAP: ${getVWAP(trade)} - price: ${trade.price}) * quantity: {trade.quantity} = {(getVWAP(trade) - trade.price) * trade.quantity}</div>
       )}
+      <BarChart size={[500, 500]} data={serializeProps(trades, "quantity")} />
     </div>
 
 export default Trades;

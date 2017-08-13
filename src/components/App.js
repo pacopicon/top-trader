@@ -1,11 +1,17 @@
-import React, { Component } from 'react';
-import { render } from 'react-dom';
+import React, { Component } from 'react'
+import { render } from 'react-dom'
 import Traders from './Traders'
 import Trades from './Trades'
-import { tradeData } from './JSONdata';
-import './App.css';
+import BarChart from './BarChart'
+import StockDashboard from './StockDashboard'
+import { tradeData } from '../JSONdata'
+import '../styles/App.css'
+import { getTraderScore } from '../helpers';
+
 
 class App extends Component {
+
+
   render() {
     console.log('tradeData = ', tradeData)
     return (
@@ -14,6 +20,8 @@ class App extends Component {
           <p>Top Trader</p>
         </div>
         <div className="Body">
+          <StockDashboard stocks={tradeData.stocks}/>
+          {/* <BarChart size={[500, 500]} data={[5, 10, 1, 3]} /> */}
           <Traders traders={tradeData.traders} trades={tradeData.trades} stocks={tradeData.stocks}/>
         </div>
       </div>

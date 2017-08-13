@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { render } from 'react-dom';
 import Trades from './Trades';
-import { getTraderScore } from './helpers';
-import './App.css';
+import { getTraderScore } from '../helpers';
+import '../styles/App.css';
+import BarChart from './BarChart'
 
 const Traders = ({ traders, trades, stocks }) =>
     <div className="traders col-xs-6-">

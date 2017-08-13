@@ -1,3 +1,5 @@
+import { microsoft } from './ApiCalls';
+
 // function generateSymbol() {
 //   const company = ['AAPL', 'GOOG', 'MSFT', 'ORCL', 'TSM', 'INTC', 'CSCO', 'IBM', 'SAP', 'NVDA', 'QCOM', 'CRM', 'BIDU', 'AABA', 'ADP', 'TCEHY', 'FB', 'KS', 'WDAY']
 //   return company[Math.floor(Math.random() * 10)]
@@ -177,3 +179,7 @@ export const tradeData = {
    "stocks": fillStocks(),
    "trades": fillTrades()
 }
+
+// export const mcrsft = {
+//   symbol: microsoft["Meta Data"]["2. Symbol"]
+// }
