@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { render } from 'react-dom';
 import '../styles/Stocks.css';
 import BarChart from './BarChart'
+import LineChart from './LineChart'
 import Stock from './Stock'
 import { serializeProps } from '../helpers';
 // import { tradeData, mcrsft } from '../JSONdata';
@@ -31,7 +32,8 @@ class StockDashboard extends Component {
       .then(json => {
         console.log('parsed json: ', json)
         // USUAL WAY: this.setState({ microsoft: json })
-        // CAN'T DO THIS THOUGH: this.setState( { MSFTData.symbol: json['Meta Data']['2. Symbol'] } )
+        // CAN'T DO THIS with a nested state THOUGH.  Need to do this instead:
+        // this.setState( { MSFTData.symbol: json['Meta Data']['2. Symbol'] } )
         var symbol = json['Meta Data']['2. Symbol']
         var open = json['Time Series (Daily)']['2017-08-11']['1. open']
         var high = json['Time Series (Daily)']['2017-08-11']['2. high']
@@ -64,7 +66,8 @@ class StockDashboard extends Component {
         {stocks.map((stock, i) =>
             <Stock key={i} stock={stock}/>
         )}
-        <BarChart className="barChart" size={[500, 500]} data={serializeProps(stocks, "vwap")} />
+        {/* <BarChart className="barChart" size={[500, 500]} data={serializeProps(stocks, "vwap")} /> */}
+        Line chart: <LineChart className="lineChart" />
       </div>
     )
   }
