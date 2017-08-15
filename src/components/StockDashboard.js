@@ -19,7 +19,38 @@ class StockDashboard extends Component {
         low: 0,
         close: 0,
         volume: 0
-      },
+      }, data: {
+                  "Meta Data": {
+                      "1. Information": "Daily Prices (open, high, low, close) and Volumes",
+                      "2. Symbol": "MSFT",
+                      "3. Last Refreshed": "2017-08-11",
+                      "4. Output Size": "Full size",
+                      "5. Time Zone": "US/Eastern"
+                  },
+                  "Time Series (Daily)": {
+                      "2017-08-11": {
+                          "1. open": "71.6100",
+                          "2. high": "72.7000",
+                          "3. low": "71.2800",
+                          "4. close": "72.5000",
+                          "5. volume": "21121250"
+                      },
+                      "2017-08-10": {
+                          "1. open": "71.9000",
+                          "2. high": "72.1900",
+                          "3. low": "71.3500",
+                          "4. close": "71.4100",
+                          "5. volume": "23153711"
+                      },
+                      "2017-08-09": {
+                          "1. open": "72.2500",
+                          "2. high": "72.5100",
+                          "3. low": "72.0500",
+                          "4. close": "72.4700",
+                          "5. volume": "20401071"
+                      }
+                  }
+              }
     }
   }
 
@@ -67,7 +98,7 @@ class StockDashboard extends Component {
             <Stock key={i} stock={stock}/>
         )}
         {/* <BarChart className="barChart" size={[500, 500]} data={serializeProps(stocks, "vwap")} /> */}
-        Line chart: <LineChart className="lineChart" />
+        Line chart: <LineChart className="lineChart" data={this.state.data} />
       </div>
     )
   }

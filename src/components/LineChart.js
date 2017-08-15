@@ -33,53 +33,84 @@ class LineChart extends Component {
  }
 
   createLineChart() {
-    const { scatterData } = this.state
-    // const
+    const { data } = this.props
     const node = this.node,
           svg = select(node),
           margin = {top: 20, right: 20, bottom: 30, left: 50},
-          width = svg.attr('width') - margin.left - margin.right,
-          height = svg.attr('height') - margin.top - margin.bottom,
+          width = +svg.attr('width') - margin.left - margin.right,
+          height = +svg.attr('height') - margin.top - margin.bottom,
           g = svg.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-    // const parseTime = timeParse('%d-%b-%y')
     const parseTime = timeParse('%Y-%m-%d')
 
-    const x = scaleTime().rangeRound([0, width])
-    const y = scaleLinear().rangeRound([height, 0])
+    const xScale = scaleTime().rangeRound([0, width])
+    const yScale = scaleLinear().rangeRound([height, 0])
 
-    const line = line()
-                  .x(d => x(d.date))
-                  .y(d => y(d.close))
-    // const xExtent = extent(scatterData, (d) => d.price)
-    // const yExtent = extent(scatterData, (d) => d.date)
-    // const yScale = scaleLinear().domain(yExtent).range([500,0]) // inverting these numbers will invert the Y scale of the graph
-    // const xScale = scaleLinear().domain(xExtent).range([0,500])
+    // const line = line().xScale(d => xScale(d.date)).yScale(d => yScale(d.close))
 
+    this.exposePrices = function(obj) {
+      var result = [];
+      for (var prop in obj) {
+          var value = obj[prop];
+          if (typeof value === 'object') {
+              result.push(this.exposePrices(value)); // <- recursive call
+          }
+          else {
+              result.push(value);
+          }
+      }
+      return result;
+    }
 
+    var dates = data['Time Series (Daily)']
+    var dateArray = Object.keys(dates)
+    var priceArray = this.exposePrices(dates)
 
-    select(node)
-      .selectAll('circle')
-      .data(scatterData)
-      .enter()
-      .append('circle')
-      .attr("r",5).attr("cx", (d) => xScale(d.price))
-      .attr("cy", (d) => yScale(d.date))
+    var closeArray = []
 
-    const xAxis = axisBottom().scale(xScale)
-      .tickSize(-500).ticks(4)
-    select(node).append('g').attr('id', 'xAxisG').call(xAxis)
+    this.parseData = function(dateArray, priceArray, mainIndex) {
 
-    const yAxis = axisRight().scale(yScale)
-      .tickSize(500).ticks(16)
-    select(node).append('g').attr('id', 'yAxisG').call(yAxis)
+      const dyad = {
+        date: parseTime(dateArray[mainIndex]),
+        price: Number(priceArray[mainIndex][3])
+      }
+      closeArray.push(dyad)
+      return closeArray
+    }
 
-    select(node)
-      .selectAll("#xAxisG").attr("transform","translate(0,500)")
-      .selectAll("#yAxisG").attr("transform","translate(0,500)")
+    for (var i=0; i<dateArray.length; i++) {
+      this.parseData(dateArray, priceArray, i, 1)
+    }
+    console.log('closeArray = ', closeArray);
 
-    select(node)
-      .selectAll("path.domain").style("fill", "none").style("stroke", "black")
-      .selectAll("line").style("stroke", "black")
+    xScale.domain(extent(closeArray, d => d.date))
+    yScale.domain(extent(closeArray, d => d.price))
+
+    g.append('g')
+      .attr('transform', 'translate(0, ' + height + ')')
+      .call(axisBottom(xScale))
+      .select('.domain')
+      .remove()
+
+    g.append('g')
+      .call(axisLeft(yScale))
+      .append('text')
+      .attr('fill', '#000')
+      .attr('transform', 'rotate(-90)')
+      .attr('y',6)
+      .attr('dy','0.71em')
+      .attr('text-anchor','end')
+      .text('price ($)')
+
+    g.append('path')
+      .datum(closeArray)
+      .attr('fill', 'none')
+      .attr('stroke', 'steelblue')
+      .attr('stroke-linejoin', 'round')
+      .attr('stroke-width',1.5)
+      .attr('d', line().x(d => xScale(d.date)).y(d => yScale(d.price)))
+      // .attr('d',line)
+
+      // console.log(line().x(d => xScale(d.date)).y(d => yScale(d.close)));
    }
 
 render() {
