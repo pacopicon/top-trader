@@ -12,16 +12,6 @@ class LineChart extends Component {
   constructor(props){
     super(props)
     this.createLineChart = this.createLineChart.bind(this)
-    this.state = {
-      scatterData: [
-        {date: 5, price: 22000},
-        {date: 3, price: 18000},
-        {date: 10, price: 88000},
-        {date: 0, price: 180000},
-        {date: 27, price: 56000},
-        {date: 8, price: 74000},
-      ]
-    }
  }
 
  componentDidMount() {
@@ -33,7 +23,7 @@ class LineChart extends Component {
  }
 
   createLineChart() {
-    const { data } = this.props
+    const { MSFTdailyData } = this.props
     const node = this.node,
           svg = select(node),
           margin = {top: 20, right: 20, bottom: 30, left: 50},
@@ -61,7 +51,9 @@ class LineChart extends Component {
       return result;
     }
 
-    var dates = data['Time Series (Daily)']
+    console.log("MSFTdailyData", MSFTdailyData);
+
+    var dates = MSFTdailyData['Time Series (Daily)']
     var dateArray = Object.keys(dates)
     var priceArray = this.exposePrices(dates)
 
@@ -77,7 +69,9 @@ class LineChart extends Component {
       return closeArray
     }
 
-    for (var i=0; i<dateArray.length; i++) {
+    var dataScope = dateArray.length
+
+    for (var i=0; i<dataScope; i++) {
       this.parseData(dateArray, priceArray, i, 1)
     }
     console.log('closeArray = ', closeArray);
@@ -107,10 +101,7 @@ class LineChart extends Component {
       .attr('stroke', 'steelblue')
       .attr('stroke-linejoin', 'round')
       .attr('stroke-width',1.5)
-      .attr('d', line().x(d => xScale(d.date)).y(d => yScale(d.price)))
-      // .attr('d',line)
-
-      // console.log(line().x(d => xScale(d.date)).y(d => yScale(d.close)));
+      .attr('d', line().x(d => xScale(d.date)).y(d => yScale(d.price))) // for some reason React did not let me isolate the line() function into its own variable even though the   { line } fn was imported from d3.shape.
    }
 
 render() {
@@ -119,9 +110,14 @@ render() {
     // borderBottom: '1px black solid'
     border: '1px black solid'
   }
-  return <svg ref={node => this.node = node}
-    width={960} height={500} style={svgStyle}>
-    </svg>
+  return (
+    <div>
+      <svg ref={node => this.node = node}
+        width={960} height={500} style={svgStyle}>
+      </svg>
+      <form ref={(input) => this.props.chosenSec}
+    </div>
+  )
   }
 }
 export default LineChart
