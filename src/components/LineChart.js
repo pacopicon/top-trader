@@ -120,7 +120,7 @@ class LineChart extends Component {
 
    handleSecuritySelection(event) {
      console.log("event.target.value = ", event.target.value);
-     this.props.changeProp(event.target.value)
+     this.props.childChangeParentState(event.target.value)
    }
 
    render() {

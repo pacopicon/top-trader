@@ -11,8 +11,11 @@ import { serializeProps } from '../helpers';
 class StockDashboard extends Component {
   constructor() {
     super()
-    this.changeProp = this.changeProp.bind(this)
+    this.renderLineChart = this.renderLineChart.bind(this)
+    this.childChangeParentState = this.childChangeParentState.bind(this)
+    this.callAPI = this.callAPI.bind(this)
     this.state = {
+      renderLineChart: true,
       MSFTData: {
         symbol: '',
         open: 0,
@@ -59,42 +62,113 @@ class StockDashboard extends Component {
     }
   }
 
-  componentDidMount() {
-    // fetch('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=MSFT&outputsize=full&apikey=5JSEEXSISXT9VKNO')
+  callAPI() {
+
     fetch(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${this.state.security}&outputsize=full&apikey=5JSEEXSISXT9VKNO`)
-      .then(response => {
-        return response.json()
-        console.log('response.json(): ', response.json())
-      })
-      .then(json => {
-        console.log('parsed json: ', json)
-        // USUAL WAY: this.setState({ microsoft: json })
-        // CAN'T DO THIS with a nested state THOUGH.  Need to do this instead:
-        // this.setState( { MSFTData.symbol: json['Meta Data']['2. Symbol'] } )
-        var symbol = json['Meta Data']['2. Symbol']
-        var open = json['Time Series (Daily)']['2017-08-11']['1. open']
-        var high = json['Time Series (Daily)']['2017-08-11']['2. high']
-        var low = json['Time Series (Daily)']['2017-08-11']['3. low']
-        var close = json['Time Series (Daily)']['2017-08-11']['4. close']
-        var volume = json['Time Series (Daily)']['2017-08-11']['5. volume']
-        this.setState({ MSFTData: {...this.state.MSFTData, symbol: symbol} })
-        this.setState({ MSFTData: {...this.state.MSFTData, open: open} })
-        this.setState({ MSFTData: {...this.state.MSFTData, high: high} })
-        this.setState({ MSFTData: {...this.state.MSFTData, low: low} })
-        this.setState({ MSFTData: {...this.state.MSFTData, close: close} })
-        this.setState({ MSFTData: {...this.state.MSFTData, volume: volume} })
-        this.setState({ MSFTdailyData: json })
-      })
-      .catch(error => {
-        console.log('parsing failed: ', error)
-      })
+    .then(response => {
+      console.log('this.state.security = ', this.state.security);
+      console.log('typeof this.state.security = ', typeof this.state.security);
+      return response.json()
+    })
+    .then(json => {
+      console.log('parsed json: ', json)
+      // USUAL WAY: this.setState({ microsoft: json })
+      // CAN'T DO THIS with a nested state THOUGH.  Need to do this instead:
+      // this.setState( { MSFTData.symbol: json['Meta Data']['2. Symbol'] } )
+      // var symbol = json['Meta Data']['2. Symbol']
+      // var open = json['Time Series (Daily)']['2017-08-11']['1. open']
+      // var high = json['Time Series (Daily)']['2017-08-11']['2. high']
+      // var low = json['Time Series (Daily)']['2017-08-11']['3. low']
+      // var close = json['Time Series (Daily)']['2017-08-11']['4. close']
+      // var volume = json['Time Series (Daily)']['2017-08-11']['5. volume']
+      // this.setState({ MSFTData: {...this.state.MSFTData, symbol: symbol} })
+      // this.setState({ MSFTData: {...this.state.MSFTData, open: open} })
+      // this.setState({ MSFTData: {...this.state.MSFTData, high: high} })
+      // this.setState({ MSFTData: {...this.state.MSFTData, low: low} })
+      // this.setState({ MSFTData: {...this.state.MSFTData, close: close} })
+      // this.setState({ MSFTData: {...this.state.MSFTData, volume: volume} })
+      this.setState({ MSFTdailyData: json })
+    })
+    .catch(error => {
+      console.log('parsing failed: ', error)
+    })
   }
 
-  changeProp(choice) {
-    this.setState({
-      security: choice
-    })
-    console.log("this.state.security = ", this.state.security);
+  componentDidMount() {
+    // fetch('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=MSFT&outputsize=full&apikey=5JSEEXSISXT9VKNO')
+
+    this.callAPI()
+  }
+
+  // componentWillUnmount() {
+  //   this.callAPI() // calling this.callAPI() here and also in componentDidMount() will superinpose all security data on top of each other
+  // }
+
+  childChangeParentState(choice) {
+
+      clearTimeout(this.interval)
+
+      this.setState({
+        security: choice,
+        renderLineChart: false
+      }, function onceStateIsUpdated() {
+
+        this.interval = setTimeout( () => {
+
+          console.log(`Q: Does ${choice} match ${this.state.security}? A: ${choice == this.state.security}`)
+
+          // console.log("choice = ", choice)
+
+          // console.log("this.state.security = ", this.state.security)
+
+          console.log("this.state.renderLineChart = ", this.state.renderLineChart)
+
+          if (this.state.security == choice && this.state.renderLineChart == false) {
+            console.log("callback fired")
+            this.callAPI()
+            this.setState({
+              renderLineChart: true
+            })
+          }
+        }, 1000)
+      })
+
+
+
+    // this.setState({
+    //   renderLineChart: false,
+    //   security: choice
+    // })
+    // console.log("this.state.security = ", this.state.security);
+    // this.callAPI()
+    // this.setState({
+    //   renderLineChart: true
+    // })
+
+
+    // this.setState({
+    //   security: choice
+    // }).then( () => {
+    //   console.log("this.state.security = ", this.state.security);
+    //   this.callAPI()
+    // })
+
+
+    // this.setState({
+    //   security: choice
+    // })
+    // console.log("this.state.security = ", this.state.security);
+    // this.callAPI()
+
+  }
+
+  renderLineChart() {
+    return this.state.renderLineChart ? <LineChart className="lineChart"
+      MSFTdailyData={this.state.MSFTdailyData}
+      security={this.state.security}
+      securities={this.state.securities}
+      childChangeParentState={this.childChangeParentState}
+    /> : null
   }
 
   render() {
@@ -111,13 +185,7 @@ class StockDashboard extends Component {
         {stocks.map((stock, i) =>
             <Stock key={i} stock={stock}/>
         )}
-        {/* <BarChart className="barChart" size={[500, 500]} data={serializeProps(stocks, "vwap")} /> */}
-        <LineChart className="lineChart"
-          MSFTdailyData={this.state.MSFTdailyData}
-          security={this.state.security}
-          securities={this.state.securities}
-          changeProp={this.changeProp}
-        />
+        {this.renderLineChart()}
       </div>
     )
   }
