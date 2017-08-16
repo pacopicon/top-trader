@@ -4,7 +4,7 @@ import '../styles/Stocks.css';
 
 const Stock = ({ stock }) =>
   <div className="stock">
-    <p>{stock.symbol}: ${stock.vwap}</p>
+    <p>{stock.symbol}: ${stock.vwap}</p><br/><br/>
   </div>
 
 export default Stock;

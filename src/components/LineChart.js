@@ -12,6 +12,11 @@ class LineChart extends Component {
   constructor(props){
     super(props)
     this.createLineChart = this.createLineChart.bind(this)
+    this.renderSecurityOptions = this.renderSecurityOptions.bind(this)
+    this.handleSecuritySelection = this.handleSecuritySelection.bind(this)
+    this.state = {
+      chosenSecurity: 'AAPL'
+    }
  }
 
  componentDidMount() {
@@ -22,7 +27,7 @@ class LineChart extends Component {
     this.createLineChart()
  }
 
-  createLineChart() {
+ createLineChart() {
     const { MSFTdailyData } = this.props
     const node = this.node,
           svg = select(node),
@@ -104,20 +109,39 @@ class LineChart extends Component {
       .attr('d', line().x(d => xScale(d.date)).y(d => yScale(d.price))) // for some reason React did not let me isolate the line() function into its own variable even though the   { line } fn was imported from d3.shape.
    }
 
-render() {
-  var svgStyle = {
-    // borderRight: '1px black solid',
-    // borderBottom: '1px black solid'
-    border: '1px black solid'
-  }
-  return (
-    <div>
-      <svg ref={node => this.node = node}
-        width={960} height={500} style={svgStyle}>
-      </svg>
-      <form ref={(input) => this.props.chosenSec}
-    </div>
-  )
-  }
+   renderSecurityOptions() {
+     const { securities } = this.props,
+
+     secOption = (opt, i) => <option key={i} value={opt}>{opt}</option>
+
+     return securities.map(secOption)
+
+   }
+
+   handleSecuritySelection(event) {
+     console.log("event.target.value = ", event.target.value);
+     this.props.changeProp(event.target.value)
+   }
+
+   render() {
+      var svgStyle = {
+      // borderRight: '1px black solid',
+      // borderBottom: '1px black solid'
+        border: '1px black solid'
+      }
+      return (
+        <div>
+          <svg ref={node => this.node = node}
+            width={960} height={500} style={svgStyle}>
+          </svg>
+          <form>
+            <select onChange={this.handleSecuritySelection}>
+              {this.renderSecurityOptions()}
+            </select>
+          </form>
+        </div>
+      )
+    }
 }
+
 export default LineChart
