@@ -12,8 +12,6 @@ class LineChart extends Component {
   constructor(props){
     super(props)
     this.createLineChart = this.createLineChart.bind(this)
-    // this.renderSecurityOptions = this.renderSecurityOptions.bind(this)
-    // this.handleSecuritySelection = this.handleSecuritySelection.bind(this)
     this.state = {
       chosenSecurity: 'AAPL'
     }
@@ -117,20 +115,6 @@ class LineChart extends Component {
       .attr('d', line().x(d => xScale(d.date)).y(d => yScale(d.price))) // for some reason React did not let me isolate the line() function into its own variable even though the   { line } fn was imported from d3.shape.
    }
 
-  //  renderSecurityOptions() {
-  //    const { securities } = this.props,
-   //
-  //    secOption = (opt, i) => <option key={i} value={opt}>{opt}</option>
-   //
-  //    return securities.map(secOption)
-   //
-  //  }
-   //
-  //  handleSecuritySelection(event) {
-  //    console.log("event.target.value = ", event.target.value);
-  //    this.props.childChangeParentState(event.target.value)
-  //  }
-
    render() {
       var svgStyle = {
       // borderRight: '1px black solid',
@@ -142,11 +126,6 @@ class LineChart extends Component {
           <svg ref={node => this.node = node}
             width={960} height={500} style={svgStyle}>
           </svg>
-          {/* <form>
-            <select placeName={this.props.security} onChange={this.handleSecuritySelection}>
-              {this.renderSecurityOptions()}
-            </select>
-          </form> */}
         </div>
       )
     }
