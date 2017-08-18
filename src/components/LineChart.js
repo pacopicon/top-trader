@@ -4,7 +4,7 @@ import { scaleLinear, scaleTime } from 'd3-scale'
 import { axisRight, axisBottom, axisTop, axisLeft } from 'd3-axis'
 import { max, extent } from 'd3-array'
 import { timeDay, timeWeek, timeMonth } from 'd3-time'
-import { timeParse } from 'd3-time-format'
+import { timeParse, timeFormat } from 'd3-time-format'
 import { line } from 'd3-shape'
 import { select } from 'd3-selection'
 
@@ -12,8 +12,8 @@ class LineChart extends Component {
   constructor(props){
     super(props)
     this.createLineChart = this.createLineChart.bind(this)
-    this.renderSecurityOptions = this.renderSecurityOptions.bind(this)
-    this.handleSecuritySelection = this.handleSecuritySelection.bind(this)
+    // this.renderSecurityOptions = this.renderSecurityOptions.bind(this)
+    // this.handleSecuritySelection = this.handleSecuritySelection.bind(this)
     this.state = {
       chosenSecurity: 'AAPL'
     }
@@ -59,8 +59,16 @@ class LineChart extends Component {
     console.log("MSFTdailyData", MSFTdailyData);
 
     var dates = MSFTdailyData['Time Series (Daily)']
-    var dateArray = Object.keys(dates)
-    var priceArray = this.exposePrices(dates)
+    console.log('MSFTdailyData = ', MSFTdailyData);
+
+    if (dates == null || typeof dates === 'undefined') {
+      var formatTime = timeFormat('%Y-%m-%d')
+      var dateArray = [formatTime(new Date), formatTime(new Date)]
+      var priceArray = [['0', '0', '0', '0', '0'],['0', '0', '0', '0', '0']]
+    } else {
+      var dateArray = Object.keys(dates)
+      var priceArray = this.exposePrices(dates)
+    }
 
     var closeArray = []
 
@@ -109,19 +117,19 @@ class LineChart extends Component {
       .attr('d', line().x(d => xScale(d.date)).y(d => yScale(d.price))) // for some reason React did not let me isolate the line() function into its own variable even though the   { line } fn was imported from d3.shape.
    }
 
-   renderSecurityOptions() {
-     const { securities } = this.props,
-
-     secOption = (opt, i) => <option key={i} value={opt}>{opt}</option>
-
-     return securities.map(secOption)
-
-   }
-
-   handleSecuritySelection(event) {
-     console.log("event.target.value = ", event.target.value);
-     this.props.childChangeParentState(event.target.value)
-   }
+  //  renderSecurityOptions() {
+  //    const { securities } = this.props,
+   //
+  //    secOption = (opt, i) => <option key={i} value={opt}>{opt}</option>
+   //
+  //    return securities.map(secOption)
+   //
+  //  }
+   //
+  //  handleSecuritySelection(event) {
+  //    console.log("event.target.value = ", event.target.value);
+  //    this.props.childChangeParentState(event.target.value)
+  //  }
 
    render() {
       var svgStyle = {
@@ -134,11 +142,11 @@ class LineChart extends Component {
           <svg ref={node => this.node = node}
             width={960} height={500} style={svgStyle}>
           </svg>
-          <form>
-            <select onChange={this.handleSecuritySelection}>
+          {/* <form>
+            <select placeName={this.props.security} onChange={this.handleSecuritySelection}>
               {this.renderSecurityOptions()}
             </select>
-          </form>
+          </form> */}
         </div>
       )
     }
