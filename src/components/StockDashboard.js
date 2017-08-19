@@ -21,9 +21,9 @@ class StockDashboard extends Component {
     this.callSecuritiesInfoAPI = this.callSecuritiesInfoAPI.bind(this)
     this.state = {
       renderLineChart: true,
-      securities: [{'Symbol':'AAPL','Name':'Apple Inc.', 'Sector':'Information Technology'}],
-      security: 'AAPL',
-      selection: ['MMM','Apple Inc.', 'Information Technology'],
+      securities: [{'Symbol':'MMM','Name':'3M Company', 'Sector':'Industrials'}],
+      security: 'MMM',
+      selection: ['MMM','3M Company', 'Industrials'],
       timeScales: {'1D':1, '1W':7, '1M':31, '3M':(31*3), '6M':(31*6), '1Y':(365), '2Y':(365*2)},
       timeScale: 1,
       datePriceData: { "Meta Data": {},"Time Series (Daily)": {} }
@@ -65,7 +65,7 @@ class StockDashboard extends Component {
       this.setState({
         securities: json
       }, function() {
-        console.log(`callSecuritiesInfoAPI json parsing succeeded. call = ${http}.  json.length = ${json.length}. this.state.securities = ${this.state.securities}`)
+        console.log(`callSecuritiesInfoAPI json parsing succeeded. call = ${http}.  json.length = ${json.length}. this.state.securities.length = ${this.state.securities.length}`)
       })
 
     })
@@ -80,7 +80,6 @@ class StockDashboard extends Component {
     this.callSecuritiesInfoAPI()
 
   }
-
 
   changeChartParams(security, timeScale) {
 
@@ -118,44 +117,38 @@ class StockDashboard extends Component {
 
   renderOptions(options) {
     var selection = []
-    if (Array.isArray(options)) { // Does var options refer to array of Securities info objects [{k:v, k:v, k:v...}, {k:v, k:v, k:v...}, {k:v, k:v, k:v...}...] or does it refer to Object of timeScale / modifier  key-values {k:v, k:v, k:v...}?
-      // console.log('this.state.securities[0].Name = ' + this.state.securities[0].Name);
+    if (Array.isArray(options)) { // Does var options refer to array of Securities info objects or to Object of timeScale / modifier  key-values?
       var optionsArray = []
-
-      // selection = (opt, i, index) => <option key={i} value={opt[i]}>{opt[index].Name}</option>
-
       for (var i=0; i<options.length; i++) {
-        optionsArray.push(options[i])
+        var instance = []
+        instance.push(options[i].Symbol)
+        instance.push(options[i].Name)
+        instance.push(options[i].Sector)
+        optionsArray.push(instance)
       }
-
-      selection = (opt, i) => <option key={i} value={opt}>{opt.Name}</option>
-
-      // return optionsArray.map(selection)
-
+      options = optionsArray
+      console.log(`options[0]['Symbol'], options[0].Name, options[0].Sector = ${options[0]['Symbol']}, ${options[0].Name}, ${options[0].Sector}`);
+      selection = (opt, i) => <option key={i} value={opt}>{opt[1]}</option>
     } else {
-      var optionsArray = Object.keys(options)
+      var options = Object.keys(options)
       selection = (key, i) => <option key={i} value={options[key]}>{key}</option>
-      // return optionsArray.map(selection)
     }
-    return optionsArray.map(selection)
-
+    return options.map(selection)
   }
 
   handleSymbolSelection(event) {
     const { timeScale } = this.state
-    const obj = event.target.value
-    console.log("event.target.value = ", obj);
+    var securityObj = event.target.value
+    console.log("handleSymbolSelection securityObj = ", securityObj);
     this.setState({
-      selection: [obj["Symbol"], obj["Name"], obj["Sector"]]
-      // selection: [obj.Symbol, obj.Name, obj.Sector]
-    })
-    this.changeChartParams(obj["Symbol"], timeScale)
-    // this.changeChartParams(obj.Symbol, timeScale)
+      selection: securityObj
+    }, () => console.log(`this.state.selection[0] ("symbol") = ${this.state.selection[0]}`))
+    this.changeChartParams(securityObj[0], timeScale)
   }
 
   handleTimeScaleSelection(event) {
     const { security } = this.state
-    console.log("event.target.value = ", event.target.value);
+    console.log("handleTimeScaleSelection event.target.value = ", event.target.value);
     this.changeChartParams(security, event.target.value)
   }
 

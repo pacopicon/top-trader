@@ -82,7 +82,7 @@ class LineChart extends Component {
     for (var i=0; i<dataScope; i++) {
       this.parseData(dateArray, priceArray, i)
     }
-    console.log('datePrice = ', datePrice);
+    console.log('datePrice.length = ', datePrice.length);
 
     xScale.domain(extent(datePrice, d => d.date))
     yScale.domain(extent(datePrice, d => d.price))
