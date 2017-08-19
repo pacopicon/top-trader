@@ -26,7 +26,7 @@ class LineChart extends Component {
  }
 
  createLineChart() {
-    const { MSFTdailyData, modifier } = this.props
+    const { datePriceData, timeScale } = this.props
     const node = this.node,
           svg = select(node),
           margin = {top: 20, right: 20, bottom: 30, left: 50},
@@ -54,33 +54,17 @@ class LineChart extends Component {
     }
 
 
-    console.log('MSFTdailyData = ', MSFTdailyData);
+    console.log('datePriceData = ', datePriceData);
 
-    console.log(`modifier = ${modifier}`);
-    var dates = modifier == 1 ? MSFTdailyData['Time Series (1min)'] : MSFTdailyData['Time Series (Daily)']
-    var timeString = modifier == 1 ? '%Y-%m-%d %H:%M:%S' : '%Y-%m-%d'
+    console.log(`timeScale = ${timeScale}`);
+    var dates = timeScale == 1 ? datePriceData['Time Series (1min)'] : datePriceData['Time Series (Daily)']
+    var timeString = timeScale == 1 ? '%Y-%m-%d %H:%M:%S' : '%Y-%m-%d'
     var parseTime = timeParse(timeString)
     var formatTime = timeFormat(timeString)
 
-    if (dates == null || typeof dates === 'undefined') {
-      var dateArray = [formatTime(new Date), formatTime(new Date)]
-      var priceArray = [['1', '1', '1', '1', '1'],['1', '1', '1', '1', '1']]
-      console.log(`First phase (dateArray and priceArray setters) fired: dateArray = ${dateArray},  priceArray = ${priceArray}`)
-    } else {
-      var dateArray = Object.keys(dates)
-      var priceArray = this.exposePrices(dates)
-      console.log(`Second phase (dateArray and priceArray setters) fired: dateArray.length = ${dateArray.length},  priceArray.length = ${priceArray.length}`)
-      // console.log(`Object.keys(dates) = ${Object.keys(dates)}.`)
-      // Object.keys(dates).map((key) => {console.log("key = ", key)})
-    }
-
-
-    var dataScope = modifier == 1 ? dateArray.length : modifier
-
-    // console.log(`modifier = ${modifier}.  formatTime(new Date) = ${formatTime(new Date)}.  dataScope = ${dataScope}.  parseTime(dateArray[0]) = ${parseTime(dateArray[0])}`)
-    // console.log(`dateArray = ${dateArray}.  priceArray = ${priceArray}.`)
-
-
+    var dateArray = dates == null ? [formatTime(new Date), formatTime(new Date)] : Object.keys(dates)
+    var priceArray = this.exposePrices(dates)
+    var dataScope = dates == null ? dateArray.length : (timeScale == 1 ? dateArray.length : timeScale)
     var datePrice = []
 
     this.parseData = function(dateArray, priceArray, mainIndex) {
