@@ -44,7 +44,7 @@ class StockDashboard extends Component {
       console.log(`callDatePriceAPI fired. this.state.timeScale = ${this.state.timeScale}, this.state.security = ${this.state.security}. http = ${http} `);
     })
     .then(json => {
-      console.log('callDatePriceAPI json parsing succeeded')
+      console.log('callDatePriceAPI json parsing SUCCEEDED!!!')
       this.setState({ datePriceData: json })
     })
     .catch(error => {
@@ -65,7 +65,7 @@ class StockDashboard extends Component {
       this.setState({
         securities: json
       }, function() {
-        console.log(`callSecuritiesInfoAPI json parsing succeeded. call = ${http}.  json.length = ${json.length}. this.state.securities.length = ${this.state.securities.length}`)
+        console.log(`callSecuritiesInfoAPI json parsing SUCCEEDED!!!. call = ${http}.  json.length = ${json.length}. this.state.securities.length = ${this.state.securities.length}`)
       })
 
     })
@@ -118,38 +118,32 @@ class StockDashboard extends Component {
   renderOptions(options) {
     var selection = []
     if (Array.isArray(options)) { // Does var options refer to array of Securities info objects or to Object of timeScale / modifier  key-values?
-      var optionsArray = []
-      for (var i=0; i<options.length; i++) {
-        var instance = []
-        instance.push(options[i].Symbol)
-        instance.push(options[i].Name)
-        instance.push(options[i].Sector)
-        optionsArray.push(instance)
-      }
-      options = optionsArray
-      console.log(`options[0]['Symbol'], options[0].Name, options[0].Sector = ${options[0]['Symbol']}, ${options[0].Name}, ${options[0].Sector}`);
-      selection = (opt, i) => <option key={i} value={opt}>{opt[1]}</option>
+      // console.log(`options[0]['Symbol'], options[0].Name, options[0].Sector = ${options[0]['Symbol']}, ${options[0].Name}, ${options[0].Sector}`);
+      selection = (opt, i) => <option key={i} value={[opt['Symbol'], opt.Name, opt.Sector]}>{opt.Name}</option>
     } else {
-      var options = Object.keys(options)
-      selection = (key, i) => <option key={i} value={options[key]}>{key}</option>
+      var options = Object.keys(options) // options begins as object here.  need to make it into array
+      selection = (opt, i) => <option key={i} value={opt}>{opt}</option>
     }
     return options.map(selection)
   }
 
   handleSymbolSelection(event) {
     const { timeScale } = this.state
-    var securityObj = event.target.value
-    console.log("handleSymbolSelection securityObj = ", securityObj);
+    var string = event.target.value
+    var securityArray = string.split(',')
+    console.log(`handleSymbolSelection ("symbol") securityObj[0] = ${securityArray[0]}`);
     this.setState({
-      selection: securityObj
-    }, () => console.log(`this.state.selection[0] ("symbol") = ${this.state.selection[0]}`))
-    this.changeChartParams(securityObj[0], timeScale)
+      selection: securityArray
+    }, () => console.log(`this.state.selection[1] ("name") = ${this.state.selection[1]}`))
+    this.changeChartParams(this.state.selection[0], timeScale)
   }
 
   handleTimeScaleSelection(event) {
-    const { security } = this.state
-    console.log("handleTimeScaleSelection event.target.value = ", event.target.value);
-    this.changeChartParams(security, event.target.value)
+    const { security, timeScales } = this.state
+    var modifier = timeScales[event.target.value]
+    console.log("handleTimeScaleSelection modifier = ", modifier);
+    console.log("typeof modifier = ", typeof modifier);
+    this.changeChartParams(security, modifier)
   }
 
   render() {
