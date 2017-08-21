@@ -1,5 +1,5 @@
 .dashboard {
-
+  /*background-color: black;*/
 }
 
 .stockInfo {
@@ -9,13 +9,15 @@
   margin: 0;
 }
 
-.lineChart {
-  width: 960px;
+.chart {
+  width: 1000px;
   height: 520px;
   float: left;
+  padding-left:2em;
 }
 
 .select {
   float: left;
   padding-left: 2em;
+  color: black;
 }

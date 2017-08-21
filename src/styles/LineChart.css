@@ -1,13 +1,32 @@
+.lineChart {
+  /*padding-left:1em;*/
+  /*border: 1px solid white;*/
+}
+
 line {
   shape-rendering: crispEdges;
-  stroke: #000;
+  stroke: white;
+}
+
+.axisLeft {
+  fill: none;
+  stroke: white;
 }
 
 path.domain {
   fill: none;
-  stroke: black;
+  stroke: white;
 }
 
-.lineChart {
-  padding-left:1em;
+.tick line{
+  opacity: 0.2;
+  stroke: white;
+}
+
+.tick {
+  color: white;
+}
+
+.tick text {
+  color: white;
 }

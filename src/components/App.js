@@ -62,7 +62,6 @@ class App extends Component {
 
           <div className="stockDashboard">
             <StockDashboard />
-            {/* <BarChart size={[500, 500]} data={[5, 10, 1, 3]} /> */}
           </div>
         </div>
       );

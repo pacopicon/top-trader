@@ -88,8 +88,11 @@ class StockDashboard extends Component {
         this.parseData(dateArray, priceArray, i)
       }
 
+      // var date = parseTime(dateArray[0])
+      // var formatTime = timeFormat("%B %d, %Y at %I:%M:%S %p")
+
       var latestData = {
-        date: dateArray[0],
+        // date: formatTime(date),
         open: Number(priceArray[0][0]),
         high: Number(priceArray[0][1]),
         low: Number(priceArray[0][2]),
@@ -239,9 +242,9 @@ class StockDashboard extends Component {
     return (
         <div className="dashboard">
           <div className="stockInfo">
-            {/* {this.renderStocksInfo()} */}
+            {this.renderStocksInfo()}
           </div>
-          <div className="lineChart">
+          <div className="chart">
             {this.renderLineChart()}
           </div>
           <form className="select">
