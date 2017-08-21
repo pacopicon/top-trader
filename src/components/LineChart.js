@@ -12,9 +12,9 @@ class LineChart extends Component {
   constructor(props){
     super(props)
     this.createLineChart = this.createLineChart.bind(this)
-    this.state = {
-      chosenSecurity: 'AAPL'
-    }
+    // this.state = {
+    //   chosenSecurity: 'AAPL'
+    // }
  }
 
  componentDidMount() {
@@ -26,7 +26,7 @@ class LineChart extends Component {
  }
 
  createLineChart() {
-    const { datePriceData, timeScale } = this.props
+    const { GRAPHIC, timeScale } = this.props
     const node = this.node,
           svg = select(node),
           margin = {top: 20, right: 20, bottom: 30, left: 50},
@@ -36,53 +36,52 @@ class LineChart extends Component {
 
     const xScale = scaleTime().rangeRound([0, width])
     const yScale = scaleLinear().rangeRound([height, 0])
+    // console.log("GRAPHIC = ", GRAPHIC);
+    const datePrice = GRAPHIC
 
     // const line = line().xScale(d => xScale(d.date)).yScale(d => yScale(d.close))
 
-    this.exposePrices = function(obj) {
-      var result = [];
-      for (var prop in obj) {
-          var value = obj[prop];
-          if (typeof value === 'object') {
-              result.push(this.exposePrices(value)); // <- recursive call
-          }
-          else {
-              result.push(value);
-          }
-      }
-      return result;
-    }
+    // this.exposePrices = function(obj) {
+    //   var result = [];
+    //   for (var prop in obj) {
+    //       var value = obj[prop];
+    //       if (typeof value === 'object') {
+    //           result.push(this.exposePrices(value)); // <- recursive call
+    //       }
+    //       else {
+    //           result.push(value);
+    //       }
+    //   }
+    //   return result;
+    // }
 
 
-    console.log('datePriceData = ', datePriceData);
+    // console.log('datePriceData = ', datePriceData);
 
-    console.log(`timeScale = ${timeScale}`);
-    var dates = timeScale == 1 ? datePriceData['Time Series (1min)'] : datePriceData['Time Series (Daily)']
-    var timeString = timeScale == 1 ? '%Y-%m-%d %H:%M:%S' : '%Y-%m-%d'
-    var parseTime = timeParse(timeString)
-    var formatTime = timeFormat(timeString)
+    // console.log(`timeScale = ${timeScale}`);
+    // var dates = timeScale == 1 ? INTRADAY['Time Series (1min)'] : DAILY['Time Series (Daily)']
+    // var timeString = timeScale == 1 ? '%Y-%m-%d %H:%M:%S' : '%Y-%m-%d'
+    // var parseTime = timeParse(timeString)
+    // var formatTime = timeFormat(timeString)
+    // var dateArray = dates == null ? [formatTime(new Date), formatTime(new Date)] : Object.keys(dates)
+    // var priceArray = this.exposePrices(dates)
+    // var dataScope = dates == null ? dateArray.length : (timeScale == 1 ? dateArray.length : timeScale)
+    // var datePrice = []
 
-    var dateArray = dates == null ? [formatTime(new Date), formatTime(new Date)] : Object.keys(dates)
-    var priceArray = this.exposePrices(dates)
-    var dataScope = dates == null ? dateArray.length : (timeScale == 1 ? dateArray.length : timeScale)
-    var datePrice = []
+    // this.parseData = function(dateArray, priceArray, mainIndex) {
+    //
+    //   const dyad = {
+    //     date: parseTime(dateArray[mainIndex]),
+    //     price: dates == null ? 0 : Number(priceArray[mainIndex][3])
+    //   }
+    //   datePrice.push(dyad)
+    //   return datePrice
+    // }
+    //
+    // for (var i=0; i<dataScope; i++) {
+    //   this.parseData(dateArray, priceArray, i)
+    // }
 
-    this.parseData = function(dateArray, priceArray, mainIndex) {
-
-      const dyad = {
-        date: parseTime(dateArray[mainIndex]),
-        price: dates == null ? 0 : Number(priceArray[mainIndex][3])
-      }
-      datePrice.push(dyad)
-      return datePrice
-    }
-
-
-
-    for (var i=0; i<dataScope; i++) {
-      this.parseData(dateArray, priceArray, i)
-    }
-    console.log('datePrice.length = ', datePrice.length);
 
     xScale.domain(extent(datePrice, d => d.date))
     yScale.domain(extent(datePrice, d => d.price))
@@ -106,7 +105,7 @@ class LineChart extends Component {
     g.append('path')
       .datum(datePrice)
       .attr('fill', 'none')
-      .attr('stroke', 'steelblue')
+      .attr('stroke', '#00FFD4')
       .attr('stroke-linejoin', 'round')
       .attr('stroke-width',1.5)
       .attr('d', line().x(d => xScale(d.date)).y(d => yScale(d.price))) // for some reason React did not let me isolate the line() function into its own variable even though the   { line } fn was imported from d3.shape.
@@ -119,7 +118,7 @@ class LineChart extends Component {
         border: '1px black solid'
       }
       return (
-        <div>
+        <div className="lineChart">
           <svg ref={node => this.node = node}
             width={960} height={500} style={svgStyle}>
           </svg>

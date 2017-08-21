@@ -1,0 +1,21 @@
+.dashboard {
+
+}
+
+.stockInfo {
+  height: 290px;
+  float: left;
+  padding: 0;
+  margin: 0;
+}
+
+.lineChart {
+  width: 960px;
+  height: 520px;
+  float: left;
+}
+
+.select {
+  float: left;
+  padding-left: 1em;
+}

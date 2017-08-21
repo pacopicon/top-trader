@@ -7,3 +7,7 @@ path.domain {
   fill: none;
   stroke: black;
 }
+
+.lineChart {
+  padding-left:1em;
+}

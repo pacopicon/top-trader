@@ -1,10 +1,11 @@
-import React, { Component } from 'react';
-import { render } from 'react-dom';
-import '../styles/Stocks.css';
+import React, { Component } from 'react'
+import { render } from 'react-dom'
+import '../styles/StockDashboard.css'
 import BarChart from './BarChart'
 import LineChart from './LineChart'
 import Stock from './Stock'
-import { serializeProps } from '../helpers';
+import { serializeProps } from '../helpers'
+import { timeParse, timeFormat } from 'd3-time-format'
 // import { callSecuritiesInfoAPI } from '../securitiesHelper';
 // import { tradeData, mcrsft } from '../JSONdata';
 // import { microsoft } from '../ApiCalls';
@@ -12,6 +13,8 @@ import { serializeProps } from '../helpers';
 class StockDashboard extends Component {
   constructor() {
     super()
+    this.exposePrices = this.exposePrices.bind(this)
+    this.renderStocksInfo = this.renderStocksInfo.bind(this)
     this.renderLineChart = this.renderLineChart.bind(this)
     this.changeChartParams = this.changeChartParams.bind(this)
     this.renderOptions = this.renderOptions.bind(this)
@@ -23,33 +26,114 @@ class StockDashboard extends Component {
       renderLineChart: true,
       securities: [{'Symbol':'MMM','Name':'3M Company', 'Sector':'Industrials'}],
       security: 'MMM',
-      selection: ['MMM','3M Company', 'Industrials'],
       timeScales: {'1D':1, '1W':7, '1M':31, '3M':(31*3), '6M':(31*6), '1Y':(365), '2Y':(365*2)},
       timeScale: 1,
-      datePriceData: { "Meta Data": {},"Time Series (Daily)": {} }
+      TEXT: ['MMM','3M Company', 'Industrials'],
+      LATEST: [205.3500,205.6300,203.4500,203.5300,1830572],
+      NUMERIC: [new Date, 0, 0, 0, 0, 0],
+      // GRAPHIC: { "Meta Data":{},"Time Series (Daily)":{} }
+      GRAPHIC: {}
     }
   }
 
-  callDatePriceAPI() {
+  exposePrices(obj) {
+    var result = [];
+    for (var prop in obj) {
+        var value = obj[prop];
+        if (typeof value === 'object') {
+            result.push(this.exposePrices(value)) // <- recursive call
+        } else {
+            result.push(value);
+        }
+    }
+    return result;
+  }
 
-    if (this.state.timeScale == 1) {
+  callDatePriceAPI() {
+    const { timeScale } = this.state
+    if (timeScale == 1) {
       var http = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${this.state.security}&interval=1min&apikey=5JSEEXSISXT9VKNO`
     } else {
       var http = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${this.state.security}&outputsize=full&apikey=5JSEEXSISXT9VKNO`
     }
 
+    var timeString = timeScale == 1 ? '%Y-%m-%d %H:%M:%S' : '%Y-%m-%d'
+    var parseTime = timeParse(timeString)
+    var datePrice = []
+
     fetch(http)
     .then(response => {
       return response.json()
-      console.log(`callDatePriceAPI fired. this.state.timeScale = ${this.state.timeScale}, this.state.security = ${this.state.security}. http = ${http} `);
+      console.log(`callDatePriceAPI fired. timeScale = ${timeScale}, this.state.security = ${this.state.security}. http = ${http} `);
     })
     .then(json => {
       console.log('callDatePriceAPI json parsing SUCCEEDED!!!')
-      this.setState({ datePriceData: json })
+      var dates = timeScale == 1 ? json['Time Series (1min)'] : json['Time Series (Daily)']
+      var priceArray = this.exposePrices(dates)
+      var dateArray = Object.keys(dates)
+      console.log(`stock symbol = ${json['Meta Data']["2. Symbol"]}`);
+      // console.log(`dates = ${dates}.  priceArray = ${priceArray}`);
+      // Object.values(dates).map(value=>console.log("value: ", value))
+      var dataScope = timeScale == 1 ? dateArray.length : timeScale
+      this.parseData = function(dateArray, priceArray, mainIndex) {
+        const dyad = {
+          date: parseTime(dateArray[mainIndex]),
+          price: Number(priceArray[mainIndex][3])
+        }
+        datePrice.push(dyad)
+        return datePrice
+      }
+
+      for (var i=0; i<dataScope; i++) {
+        this.parseData(dateArray, priceArray, i)
+      }
+
+      var latestData = {
+        date: dateArray[0],
+        open: Number(priceArray[0][0]),
+        high: Number(priceArray[0][1]),
+        low: Number(priceArray[0][2]),
+        close: Number(priceArray[0][3]),
+        volume: Number(priceArray[0][4])
+      }
+      this.setState({
+        GRAPHIC: datePrice,
+        NUMERIC: latestData
+       })
     })
     .catch(error => {
       console.log('callDatePriceAPI json parsing failed: ', error)
-      this.setState({ datePriceData: { "Meta Data":{},"Time Series (Daily)":{} } })
+      var formatTime = timeFormat(timeString)
+      var dateArray = [formatTime(new Date), formatTime(new Date)]
+      var dataScope = dateArray.length
+
+      this.parseData = function(dateArray, mainIndex) {
+
+        const dyad = {
+          date: parseTime(dateArray[mainIndex]),
+          price: 0
+        }
+        datePrice.push(dyad)
+        return datePrice
+      }
+
+      for (var i=0; i<dataScope; i++) {
+        this.parseData(dateArray, i)
+      }
+
+        var latestData = {
+          date: new Date,
+          open: 0,
+          high: 0,
+          low: 0,
+          close: 0,
+          volume: 0
+        }
+      this.setState({
+        GRAPHIC: { "Meta Data":{},"Time Series (Daily)":{} },
+        // GRAPHIC: datePrice,
+        NUMERIC: latestData
+       })
     })
   }
 
@@ -75,10 +159,53 @@ class StockDashboard extends Component {
   }
 
   componentDidMount() {
-
     this.callDatePriceAPI()
-    this.callSecuritiesInfoAPI()
 
+    this.callSecuritiesInfoAPI()
+  }
+
+  renderStocksInfo() {
+    return <Stock
+            TEXT={this.state.TEXT}
+            NUMERIC={this.state.NUMERIC}
+          />
+  }
+
+  renderLineChart() {
+    return this.state.renderLineChart ? <LineChart className="lineChart"
+      GRAPHIC={this.state.GRAPHIC}
+      timeScale={this.state.timeScale}
+    /> : null
+  }
+
+  renderOptions(options) {
+    var selection = []
+    if (Array.isArray(options)) { // Does var options refer to array of Securities info objects or to Object of timeScale / modifier  key-values?
+      selection = (opt, i) => <option key={i} value={[opt['Symbol'], opt.Name, opt.Sector]}>{opt.Name}</option>
+    } else {
+      var options = Object.keys(options) // options begins as object here.  need to make it into array
+      selection = (opt, i) => <option key={i} value={opt}>{opt}</option>
+    }
+    return options.map(selection)
+  }
+
+  handleSymbolSelection(event) {
+    const { timeScale } = this.state
+    var string = event.target.value
+    var securityArray = string.split(',')
+    console.log(`handleSymbolSelection ("symbol") securityObj[0] = ${securityArray[0]}`);
+    this.setState({
+      TEXT: securityArray
+    }, () => console.log(`this.state.TEXT[1] ("name") = ${this.state.TEXT[1]}`))
+    this.changeChartParams(this.state.TEXT[0], timeScale)
+  }
+
+  handleTimeScaleSelection(event) {
+    const { security, timeScales } = this.state
+    var modifier = timeScales[event.target.value]
+    console.log("handleTimeScaleSelection modifier = ", modifier);
+    console.log("typeof modifier = ", typeof modifier);
+    this.changeChartParams(security, modifier)
   }
 
   changeChartParams(security, timeScale) {
@@ -107,64 +234,28 @@ class StockDashboard extends Component {
     }
   }
 
-  renderLineChart() {
-    return this.state.renderLineChart ? <LineChart className="lineChart"
-      datePriceData={this.state.datePriceData}
-      security={this.state.security}
-      timeScale={this.state.timeScale}
-    /> : null
-  }
-
-  renderOptions(options) {
-    var selection = []
-    if (Array.isArray(options)) { // Does var options refer to array of Securities info objects or to Object of timeScale / modifier  key-values?
-      // console.log(`options[0]['Symbol'], options[0].Name, options[0].Sector = ${options[0]['Symbol']}, ${options[0].Name}, ${options[0].Sector}`);
-      selection = (opt, i) => <option key={i} value={[opt['Symbol'], opt.Name, opt.Sector]}>{opt.Name}</option>
-    } else {
-      var options = Object.keys(options) // options begins as object here.  need to make it into array
-      selection = (opt, i) => <option key={i} value={opt}>{opt}</option>
-    }
-    return options.map(selection)
-  }
-
-  handleSymbolSelection(event) {
-    const { timeScale } = this.state
-    var string = event.target.value
-    var securityArray = string.split(',')
-    console.log(`handleSymbolSelection ("symbol") securityObj[0] = ${securityArray[0]}`);
-    this.setState({
-      selection: securityArray
-    }, () => console.log(`this.state.selection[1] ("name") = ${this.state.selection[1]}`))
-    this.changeChartParams(this.state.selection[0], timeScale)
-  }
-
-  handleTimeScaleSelection(event) {
-    const { security, timeScales } = this.state
-    var modifier = timeScales[event.target.value]
-    console.log("handleTimeScaleSelection modifier = ", modifier);
-    console.log("typeof modifier = ", typeof modifier);
-    this.changeChartParams(security, modifier)
-  }
-
   render() {
-    const { stocks } = this.props
+    const { selection } = this.state
     return (
-        <div className="stocks">
-        {stocks.map((stock, i) =>
-            <Stock key={i} stock={stock}/>
-        )}
-        {this.renderLineChart()}
-        <form>
-          {
-            this.state.securities ?
-              <select onChange={this.handleSymbolSelection}>
-                {this.renderOptions(this.state.securities)}
-              </select> : <div>waiting on Data</div>
-          }
-          <select onChange={this.handleTimeScaleSelection}>
-            {this.renderOptions(this.state.timeScales)}
-          </select>
-        </form>
+        <div className="dashboard">
+          <div className="stockInfo">
+            {/* {this.renderStocksInfo()} */}
+          </div>
+          <div className="lineChart">
+            {this.renderLineChart()}
+            <form className="select">
+              {
+                this.state.securities ?
+                  <select onChange={this.handleSymbolSelection}>
+                    {this.renderOptions(this.state.securities)}
+                  </select> : <div>waiting on Data</div>
+              }
+              <select onChange={this.handleTimeScaleSelection}>
+                {this.renderOptions(this.state.timeScales)}
+              </select>
+            </form>
+          </div>
+
       </div>
     )
   }
