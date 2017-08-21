@@ -105,9 +105,9 @@ class LineChart extends Component {
     g.append('path')
       .datum(datePrice)
       .attr('fill', 'none')
-      .attr('stroke', '#00FFD4')
+      .attr('stroke', '#58B5FD')
       .attr('stroke-linejoin', 'round')
-      .attr('stroke-width',1.5)
+      .attr('stroke-width',3)
       .attr('d', line().x(d => xScale(d.date)).y(d => yScale(d.price))) // for some reason React did not let me isolate the line() function into its own variable even though the   { line } fn was imported from d3.shape.
    }
 

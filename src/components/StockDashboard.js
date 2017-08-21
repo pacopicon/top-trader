@@ -31,8 +31,8 @@ class StockDashboard extends Component {
       TEXT: ['MMM','3M Company', 'Industrials'],
       LATEST: [205.3500,205.6300,203.4500,203.5300,1830572],
       NUMERIC: [new Date, 0, 0, 0, 0, 0],
-      // GRAPHIC: { "Meta Data":{},"Time Series (Daily)":{} }
-      GRAPHIC: {}
+      GRAPHIC: { "Meta Data":{},"Time Series (Daily)":{} }
+      // GRAPHIC: {}
     }
   }
 
@@ -193,11 +193,11 @@ class StockDashboard extends Component {
     const { timeScale } = this.state
     var string = event.target.value
     var securityArray = string.split(',')
-    console.log(`handleSymbolSelection ("symbol") securityObj[0] = ${securityArray[0]}`);
+    console.log(`handleSymbolSelection ("symbol") securityArray[0] = ${securityArray[0]}`);
     this.setState({
       TEXT: securityArray
-    }, () => console.log(`this.state.TEXT[1] ("name") = ${this.state.TEXT[1]}`))
-    this.changeChartParams(this.state.TEXT[0], timeScale)
+    }, () => console.log(`this.state.TEXT[0] ("name") = ${this.state.TEXT[0]}`))
+    this.changeChartParams(securityArray[0], timeScale)
   }
 
   handleTimeScaleSelection(event) {
@@ -243,19 +243,18 @@ class StockDashboard extends Component {
           </div>
           <div className="lineChart">
             {this.renderLineChart()}
-            <form className="select">
-              {
-                this.state.securities ?
-                  <select onChange={this.handleSymbolSelection}>
-                    {this.renderOptions(this.state.securities)}
-                  </select> : <div>waiting on Data</div>
-              }
-              <select onChange={this.handleTimeScaleSelection}>
-                {this.renderOptions(this.state.timeScales)}
-              </select>
-            </form>
           </div>
-
+          <form className="select">
+            {
+              this.state.securities ?
+                <select onChange={this.handleSymbolSelection}>
+                  {this.renderOptions(this.state.securities)}
+                </select> : <div>waiting on Data</div>
+            }
+            <select onChange={this.handleTimeScaleSelection}>
+              {this.renderOptions(this.state.timeScales)}
+            </select>
+          </form>
       </div>
     )
   }
