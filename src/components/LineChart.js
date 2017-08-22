@@ -40,6 +40,7 @@ class LineChart extends Component {
 
     g.append('g')
       .attr('transform', 'translate(0, ' + height + ')')
+      .attr('class', 'axisBottom')
       .call(axisBottom(xScale)
         .ticks(10)
         .tickSize(-height)
@@ -48,6 +49,7 @@ class LineChart extends Component {
       .remove()
 
     g.append('g')
+      .attr('class', 'axisLeft')
       .call(axisLeft(yScale)
         .ticks(10)
         .tickSize(-width)
@@ -69,22 +71,23 @@ class LineChart extends Component {
       .attr('d', line().x(d => xScale(d.date)).y(d => yScale(d.price)))
       console.log(`line().x(d => xScale(d.date)).y(d => yScale(d.price)) = ${line().x(d => xScale(d.date)).y(d => yScale(d.price))}`);
        // for some reason React did not let me isolate the line() function into its own variable even though the   { line } fn was imported from d3.shape.
-   }
 
-   render() {
-      var svgStyle = {
-      // borderRight: '1px black solid',
-      // borderBottom: '1px black solid'
-        border: '1px black solid'
-      }
-      return (
-        <div className="lineChart">
-          <svg ref={node => this.node = node}
-            width={960} height={500} style={svgStyle}>
-          </svg>
-        </div>
-      )
+}
+
+ render() {
+    var svgStyle = {
+    // borderRight: '1px black solid',
+    // borderBottom: '1px black solid'
+      border: '1px black solid'
     }
+    return (
+      <div className="lineChart">
+        <svg ref={node => this.node = node}
+          width={960} height={500} style={svgStyle}>
+        </svg>
+      </div>
+    )
+  }
 }
 
 export default LineChart

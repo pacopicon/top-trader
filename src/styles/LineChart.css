@@ -24,9 +24,13 @@ path.domain {
 }
 
 .tick {
-  color: white;
+  /*color: white;*/
 }
 
 .tick text {
   color: white;
+}
+
+.axisBottom text {
+  stroke: white;
 }

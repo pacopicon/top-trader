@@ -3,7 +3,6 @@ import { render } from 'react-dom'
 import '../styles/StockDashboard.css'
 import BarChart from './BarChart'
 import LineChart from './LineChart'
-import Stock from './Stock'
 import { serializeProps } from '../helpers'
 import { timeParse, timeFormat } from 'd3-time-format'
 // import { callSecuritiesInfoAPI } from '../securitiesHelper';
@@ -14,7 +13,6 @@ class StockDashboard extends Component {
   constructor() {
     super()
     this.exposePrices = this.exposePrices.bind(this)
-    this.renderStocksInfo = this.renderStocksInfo.bind(this)
     this.renderLineChart = this.renderLineChart.bind(this)
     this.changeChartParams = this.changeChartParams.bind(this)
     this.renderOptions = this.renderOptions.bind(this)
@@ -88,16 +86,20 @@ class StockDashboard extends Component {
         this.parseData(dateArray, priceArray, i)
       }
 
-      // var date = parseTime(dateArray[0])
-      // var formatTime = timeFormat("%B %d, %Y at %I:%M:%S %p")
+      var date = parseTime(dateArray[0])
+      var formatTime = timeFormat("%b %d, %Y at %I:%M:%S %p")
+      var formattedDate = formatTime(date)
+      var dateStr = formattedDate.toString()
+      var alert = parseTime(formattedDate) < new Date ? 'market is closed' : 'up to date'
 
       var latestData = {
-        // date: formatTime(date),
+        date: dateStr,
         open: Number(priceArray[0][0]),
         high: Number(priceArray[0][1]),
         low: Number(priceArray[0][2]),
         close: Number(priceArray[0][3]),
-        volume: Number(priceArray[0][4])
+        volume: Number(priceArray[0][4]),
+        alert: alert
       }
       this.setState({
         GRAPHIC: datePrice,
@@ -124,13 +126,16 @@ class StockDashboard extends Component {
         this.parseData(dateArray, i)
       }
 
+      var dateString = (new Date).toString()
+
         var latestData = {
-          date: new Date,
+          date: dateString,
           open: 0,
           high: 0,
           low: 0,
           close: 0,
-          volume: 0
+          volume: 0,
+          nowDate: 'market is closed'
         }
       this.setState({
         GRAPHIC: { "Meta Data":{},"Time Series (Daily)":{} },
@@ -165,13 +170,6 @@ class StockDashboard extends Component {
     this.callDatePriceAPI()
 
     this.callSecuritiesInfoAPI()
-  }
-
-  renderStocksInfo() {
-    return <Stock
-            TEXT={this.state.TEXT}
-            NUMERIC={this.state.NUMERIC}
-          />
   }
 
   renderLineChart() {
@@ -238,26 +236,38 @@ class StockDashboard extends Component {
   }
 
   render() {
-    const { selection } = this.state
+    const { selection, TEXT, NUMERIC } = this.state
     return (
         <div className="dashboard">
           <div className="stockInfo">
-            {this.renderStocksInfo()}
+            <h1><p>{TEXT[0]} ({TEXT[1]}) <small>sector: {TEXT[2]}</small></p></h1>
+            <div className="rightInfo col-xs-6">
+              <h3>open: ${NUMERIC.open}</h3>
+              <h3>high: ${NUMERIC.high}</h3>
+              <h3>low: ${NUMERIC.low}</h3>
+            </div>
+            <div className="leftInfo col-xs-6">
+              <h3>close: ${NUMERIC.close}</h3>
+              <h3>volume: {NUMERIC.volume}</h3>
+              <small>last update: {NUMERIC.date} ({NUMERIC.alert})</small>
+            </div>
           </div>
           <div className="chart">
             {this.renderLineChart()}
           </div>
-          <form className="select">
-            {
-              this.state.securities ?
-                <select onChange={this.handleSymbolSelection}>
-                  {this.renderOptions(this.state.securities)}
-                </select> : <div>waiting on Data</div>
-            }
-            <select onChange={this.handleTimeScaleSelection}>
-              {this.renderOptions(this.state.timeScales)}
-            </select>
-          </form>
+          <div className="select">
+            <form>
+              {
+                this.state.securities ?
+                  <select onChange={this.handleSymbolSelection}>
+                    {this.renderOptions(this.state.securities)}
+                  </select> : <div>waiting on Data</div>
+              }
+              <select onChange={this.handleTimeScaleSelection}>
+                {this.renderOptions(this.state.timeScales)}
+              </select>
+            </form>
+          </div>
       </div>
     )
   }

@@ -1,23 +1,35 @@
 .dashboard {
-  /*background-color: black;*/
+  display: block;
+  width: 800px;
 }
 
 .stockInfo {
-  height: 290px;
+  display: block;
+  height: 150px;
   float: left;
+  text-align: left;
   padding: 0;
   margin: 0;
+  margin-left: 2em;
+}
+
+.stockInfo p, h1, h2, h3, small {
+  margin: 0;
+  padding: 0;
+  padding-bottom: 0.2em;
+  color: white;
 }
 
 .chart {
+  /*border: white solid 1px;*/
   width: 1000px;
   height: 520px;
   float: left;
-  padding-left:2em;
+  margin-left: 2em;
 }
 
 .select {
   float: left;
-  padding-left: 2em;
+  margin-left: 2em;
   color: black;
 }
