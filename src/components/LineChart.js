@@ -69,7 +69,6 @@ class LineChart extends Component {
       .attr('stroke-linejoin', 'round')
       .attr('stroke-width',3)
       .attr('d', line().x(d => xScale(d.date)).y(d => yScale(d.price)))
-      console.log(`line().x(d => xScale(d.date)).y(d => yScale(d.price)) = ${line().x(d => xScale(d.date)).y(d => yScale(d.price))}`);
        // for some reason React did not let me isolate the line() function into its own variable even though the   { line } fn was imported from d3.shape.
 
 }

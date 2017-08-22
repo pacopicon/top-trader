@@ -3,7 +3,7 @@ import { render } from 'react-dom'
 import '../styles/StockDashboard.css'
 import BarChart from './BarChart'
 import LineChart from './LineChart'
-import { serializeProps } from '../helpers'
+import { serializeProps, getSecuritiesInfo } from '../helpers'
 import { timeParse, timeFormat } from 'd3-time-format'
 // import { callSecuritiesInfoAPI } from '../securitiesHelper';
 // import { tradeData, mcrsft } from '../JSONdata';
@@ -19,10 +19,11 @@ class StockDashboard extends Component {
     this.handleSymbolSelection = this.handleSymbolSelection.bind(this)
     this.handleTimeScaleSelection = this.handleTimeScaleSelection.bind(this)
     this.callDatePriceAPI = this.callDatePriceAPI.bind(this)
-    this.callSecuritiesInfoAPI = this.callSecuritiesInfoAPI.bind(this)
+    // this.callSecuritiesInfoAPI = this.callSecuritiesInfoAPI.bind(this)
     this.state = {
       renderLineChart: true,
-      securities: [{'Symbol':'MMM','Name':'3M Company', 'Sector':'Industrials'}],
+      // securities: [{'Symbol':'MMM','Name':'3M Company', 'Sector':'Industrials'}],
+      securities: getSecuritiesInfo(),
       security: 'MMM',
       timeScales: {'1D':1, '1W':7, '1M':31, '3M':(31*3), '6M':(31*6), '1Y':(365), '2Y':(365*2)},
       timeScale: 1,
@@ -145,31 +146,45 @@ class StockDashboard extends Component {
     })
   }
 
-  callSecuritiesInfoAPI() {
-
-    var http = 'http://data.okfn.org/data/core/s-and-p-500-companies/r/constituents.json'
-
-    fetch(http)
-    .then(response => {
-      return response.json()
-    })
-    .then(json => {
-      this.setState({
-        securities: json
-      }, function() {
-        console.log(`callSecuritiesInfoAPI json parsing SUCCEEDED!!!. call = ${http}.  json.length = ${json.length}. this.state.securities.length = ${this.state.securities.length}`)
-      })
-
-    })
-    .catch(error => {
-      console.log('callSecuritiesInfoAPI json parsing failed: ', error)
-    })
-  }
+  // callSecuritiesInfoAPI() {
+  //
+  //   var myHeaders = new Headers({
+  //     'Access-Control-Allow-Origin': 'http://localhost:3000/',
+  //     'Content-Type': 'multipart/form-data'
+  //   });
+  //
+  //   var myInit = {
+  //     method : 'GET',
+  //     headers: myHeaders,
+  //     mode   : 'cors',
+  //     cache  : 'default'
+  //   }
+  //
+  //   var http = 'https://pkgstore.datahub.io/core/s-and-p-500-companies/latest/data/json/data/constituents.json'
+  //
+  //   var myRequest = new Request(http, myInit)
+  //
+  //   fetch(myRequest)
+  //   .then(response => {
+  //     return response.json()
+  //   })
+  //   .then(json => {
+  //     this.setState({
+  //       securities: json
+  //     }, function() {
+  //       console.log(`callSecuritiesInfoAPI json parsing SUCCEEDED!!!. call = ${http}.  json.length = ${json.length}. this.state.securities.length = ${this.state.securities.length}`)
+  //     })
+  //
+  //   })
+  //   .catch(error => {
+  //     console.log('callSecuritiesInfoAPI json parsing failed: ', error)
+  //   })
+  // }
 
   componentDidMount() {
     this.callDatePriceAPI()
-
-    this.callSecuritiesInfoAPI()
+    getSecuritiesInfo()
+    // this.callSecuritiesInfoAPI()
   }
 
   renderLineChart() {
