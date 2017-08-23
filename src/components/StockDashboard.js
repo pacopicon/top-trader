@@ -191,6 +191,11 @@ class StockDashboard extends Component {
     return this.state.renderLineChart ? <LineChart className="lineChart"
       GRAPHIC={this.state.GRAPHIC}
       timeScale={this.state.timeScale}
+      timeScales={this.state.timeScales}
+      securities={this.state.securities}
+      renderOptions={this.renderOptions}
+      handleSymbolSelection={this.handleSymbolSelection}
+      handleTimeScaleSelection={this.handleTimeScaleSelection}
     /> : null
   }
 
@@ -205,6 +210,17 @@ class StockDashboard extends Component {
     return options.map(selection)
   }
 
+  // handleSymbolSelection(event) {
+  //   const { timeScale } = this.state
+  //   var string = event.target.value
+  //   var securityArray = string.split(',')
+  //   console.log(`handleSymbolSelection ("symbol") securityArray[0] = ${securityArray[0]}`);
+  //   this.setState({
+  //     TEXT: securityArray
+  //   }, () => console.log(`this.state.TEXT[0] ("name") = ${this.state.TEXT[0]}`))
+  //   this.changeChartParams(securityArray[0], timeScale)
+  // }
+
   handleSymbolSelection(event) {
     const { timeScale } = this.state
     var string = event.target.value
@@ -213,7 +229,12 @@ class StockDashboard extends Component {
     this.setState({
       TEXT: securityArray
     }, () => console.log(`this.state.TEXT[0] ("name") = ${this.state.TEXT[0]}`))
-    this.changeChartParams(securityArray[0], timeScale)
+    this.setState({
+      security: securityArray[0],
+      timeScale: timeScale
+    }, function onceStateIsUpdated() {
+      this.callDatePriceAPI()
+    })
   }
 
   handleTimeScaleSelection(event) {
@@ -223,6 +244,32 @@ class StockDashboard extends Component {
     console.log("typeof modifier = ", typeof modifier);
     this.changeChartParams(security, modifier)
   }
+
+  // changeChartParams(security, timeScale) {
+  //
+  //   if (this.state.security !== '' && this.state.timeScale !== '') {
+  //     console.log(`First phase (changeChartParams) fired: this.state.renderLineChart = ${this.state.renderLineChart},  this.state.security = ${this.state.security}, this.state.timeScale = ${this.state.timeScale}`)
+  //     this.setState({
+  //       security: '',
+  //       timeScale: 0,
+  //       renderLineChart: false
+  //     }, function onceStateIsUpdated() {
+  //       this.callDatePriceAPI()
+  //       setTimeout(() => this.changeChartParams(security, timeScale), 300)
+  //     })
+  //   } else if (this.state.security == '' || this.state.timeScale == '') {
+  //     this.setState({
+  //       security: security,
+  //       timeScale: timeScale
+  //     }, function onceStateIsUpdated() {
+  //       console.log(`Second phase (changeChartParams) fired: this.state.renderLineChart = ${this.state.renderLineChart},  this.state.security = ${this.state.security}, this.state.timeScale = ${this.state.timeScale}`)
+  //       this.setState({
+  //         renderLineChart: true
+  //       })
+  //       this.callDatePriceAPI()
+  //     })
+  //   }
+  // }
 
   changeChartParams(security, timeScale) {
 
@@ -270,7 +317,7 @@ class StockDashboard extends Component {
           <div className="chart">
             {this.renderLineChart()}
           </div>
-          <div className="select">
+          {/* <div className="select">
             <form>
               {
                 this.state.securities ?
@@ -282,7 +329,7 @@ class StockDashboard extends Component {
                 {this.renderOptions(this.state.timeScales)}
               </select>
             </form>
-          </div>
+          </div> */}
       </div>
     )
   }

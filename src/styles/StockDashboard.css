@@ -23,9 +23,9 @@
 .chart {
   /*border: white solid 1px;*/
   width: 1000px;
-  height: 520px;
+  height: 600px;
   float: left;
-  margin-left: 2em;
+  /*margin-left: 2em;*/
 }
 
 .select {

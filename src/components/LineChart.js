@@ -12,6 +12,8 @@ class LineChart extends Component {
   constructor(props){
     super(props)
     this.createLineChart = this.createLineChart.bind(this)
+    this.rerenderSymbolSelection = this.rerenderSymbolSelection.bind(this)
+    this.rerenderTimeScaleSelection = this.rerenderTimeScaleSelection.bind(this)
  }
 
  componentDidMount() {
@@ -26,7 +28,7 @@ class LineChart extends Component {
     const { GRAPHIC, timeScale } = this.props
     const node = this.node,
           svg = select(node),
-          margin = {top: 20, right: 20, bottom: 30, left: 50},
+          margin = {top: 20, right: 20, bottom: 80, left: 50},
           width = +svg.attr('width') - margin.left - margin.right,
           height = +svg.attr('height') - margin.top - margin.bottom,
           g = svg.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
@@ -38,39 +40,49 @@ class LineChart extends Component {
     xScale.domain(extent(datePrice, d => d.date))
     yScale.domain(extent(datePrice, d => d.price))
 
+    console.log(GRAPHIC);
+
     g.append('g')
       .attr('transform', 'translate(0, ' + height + ')')
       .attr('class', 'axisBottom')
       .call(axisBottom(xScale)
-        .ticks(10)
+        .ticks(20)
         .tickSize(-height)
       )
+      .selectAll('text')
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-65)")
       .select('.domain')
       .remove()
 
     g.append('g')
       .attr('class', 'axisLeft')
       .call(axisLeft(yScale)
-        .ticks(10)
+        .ticks(20)
         .tickSize(-width)
       )
-      .append('text')
-      .attr('fill', 'white')
-      .attr('transform', 'rotate(0)')
-      .attr('y',6)
-      .attr('dy','0.71em')
-      .attr('text-anchor','end')
-      .text('price ($)')
 
     g.append('path')
       .datum(datePrice)
       .attr('fill', 'none')
       .attr('stroke', '#58B5FD')
       .attr('stroke-linejoin', 'round')
-      .attr('stroke-width',3)
+      .attr('stroke-width',2)
+      .attr('class', 'line')
       .attr('d', line().x(d => xScale(d.date)).y(d => yScale(d.price)))
        // for some reason React did not let me isolate the line() function into its own variable even though the   { line } fn was imported from d3.shape.
 
+}
+
+rerenderSymbolSelection(event) {
+  this.props.handleSymbolSelection(event)
+  
+}
+
+rerenderTimeScaleSelection(event) {
+  this.props.handleTimeScaleSelection
 }
 
  render() {
@@ -82,8 +94,21 @@ class LineChart extends Component {
     return (
       <div className="lineChart">
         <svg ref={node => this.node = node}
-          width={960} height={500} style={svgStyle}>
+          width={960} height={600} style={svgStyle}>
         </svg>
+        <div className="select">
+          <form>
+            {
+              this.props.securities ?
+                <select onChange={this.rerenderSymbolSelection}>
+                  {this.props.renderOptions(this.props.securities)}
+                </select> : <div>waiting on Data</div>
+            }
+            <select onChange={this.rerenderTimeScaleSelection}>
+              {this.props.renderOptions(this.props.timeScales)}
+            </select>
+          </form>
+        </div>
       </div>
     )
   }

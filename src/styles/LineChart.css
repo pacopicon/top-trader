@@ -1,12 +1,11 @@
 .lineChart {
-  /*padding-left:1em;*/
-  /*border: 1px solid white;*/
+  height: 100%;
 }
 
-/*line {
+.line {
   shape-rendering: crispEdges;
-  stroke: white;
-}*/
+  /*stroke: white;*/
+}
 
 .axisLeft {
   fill: none;
@@ -31,6 +30,11 @@ path.domain {
   color: white;
 }
 
+.axisLeft text {
+  font-size: 15px;
+}
+
 .axisBottom text {
   stroke: white;
+  font-size: 15px;
 }
