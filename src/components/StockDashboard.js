@@ -14,7 +14,7 @@ class StockDashboard extends Component {
     super()
     this.exposePrices = this.exposePrices.bind(this)
     this.renderLineChart = this.renderLineChart.bind(this)
-    this.changeChartParams = this.changeChartParams.bind(this)
+    // this.changeChartParams = this.changeChartParams.bind(this)
     this.renderOptions = this.renderOptions.bind(this)
     this.handleSymbolSelection = this.handleSymbolSelection.bind(this)
     this.handleTimeScaleSelection = this.handleTimeScaleSelection.bind(this)
@@ -242,7 +242,12 @@ class StockDashboard extends Component {
     var modifier = timeScales[event.target.value]
     console.log("handleTimeScaleSelection modifier = ", modifier);
     console.log("typeof modifier = ", typeof modifier);
-    this.changeChartParams(security, modifier)
+    this.setState({
+      security: security,
+      timeScale: modifier
+    }, function onceStateIsUpdated() {
+      this.callDatePriceAPI()
+    })
   }
 
   // changeChartParams(security, timeScale) {
@@ -270,32 +275,6 @@ class StockDashboard extends Component {
   //     })
   //   }
   // }
-
-  changeChartParams(security, timeScale) {
-
-    if (this.state.security !== '' && this.state.timeScale !== '') {
-      console.log(`First phase (changeChartParams) fired: this.state.renderLineChart = ${this.state.renderLineChart},  this.state.security = ${this.state.security}, this.state.timeScale = ${this.state.timeScale}`)
-      this.setState({
-        security: '',
-        timeScale: 0,
-        renderLineChart: false
-      }, function onceStateIsUpdated() {
-        this.callDatePriceAPI()
-        setTimeout(() => this.changeChartParams(security, timeScale), 300)
-      })
-    } else if (this.state.security == '' || this.state.timeScale == '') {
-      this.setState({
-        security: security,
-        timeScale: timeScale
-      }, function onceStateIsUpdated() {
-        console.log(`Second phase (changeChartParams) fired: this.state.renderLineChart = ${this.state.renderLineChart},  this.state.security = ${this.state.security}, this.state.timeScale = ${this.state.timeScale}`)
-        this.setState({
-          renderLineChart: true
-        })
-        this.callDatePriceAPI()
-      })
-    }
-  }
 
   render() {
     const { selection, TEXT, NUMERIC } = this.state
