@@ -242,7 +242,13 @@ class StockDashboard extends Component {
     var modifier = timeScales[event.target.value]
     console.log("handleTimeScaleSelection modifier = ", modifier);
     console.log("typeof modifier = ", typeof modifier);
-    this.changeChartParams(security, modifier)
+    // this.changeChartParams(security, modifier)
+    this.setState({
+      security: security,
+      timeScale: modifier
+    }, function onceStateIsUpdated() {
+      this.callDatePriceAPI()
+    })
   }
 
   // changeChartParams(security, timeScale) {

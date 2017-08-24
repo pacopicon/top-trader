@@ -7,6 +7,7 @@ import { timeDay, timeWeek, timeMonth } from 'd3-time'
 import { timeParse, timeFormat } from 'd3-time-format'
 import { line } from 'd3-shape'
 import { select } from 'd3-selection'
+import { transition } from 'd3-transition'
 
 class LineChart extends Component {
   constructor(props){
@@ -14,6 +15,7 @@ class LineChart extends Component {
     this.createLineChart = this.createLineChart.bind(this)
     this.rerenderSymbolSelection = this.rerenderSymbolSelection.bind(this)
     this.rerenderTimeScaleSelection = this.rerenderTimeScaleSelection.bind(this)
+    this.transitionLineChart = this.transitionLineChart.bind(this)
  }
 
  componentDidMount() {
@@ -76,13 +78,45 @@ class LineChart extends Component {
 
 }
 
+transitionLineChart() {
+  const node = this.node,
+        svg = select(node).transition()
+  var margin = {top: 20, right: 20, bottom: 80, left: 50},
+      width = +svg.attr('width') - margin.left - margin.right,
+      height = +svg.attr('height') - margin.top - margin.bottom
+        // g = svg.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+
+  const xScale = scaleTime().rangeRound([0, width])
+  const yScale = scaleLinear().rangeRound([height, 0])
+  const datePrice = this.props.GRAPHIC
+
+  xScale.domain(extent(datePrice, d => d.date))
+  yScale.domain(extent(datePrice, d => d.price))
+
+
+
+  svg.select('.line')
+    .duration(750)
+    .attr('d', line(datePrice).x(d => xScale(d.date)).y(d => yScale(d.price)))
+
+  svg.select('.axisLeft')
+    .duration(750)
+    .call(axisLeft(yScale))
+
+  svg.select('.axisBottom')
+    .duration(750)
+    .call(axisBottom(xScale))
+
+}
+
 rerenderSymbolSelection(event) {
   this.props.handleSymbolSelection(event)
-  
+  this.transitionLineChart()
 }
 
 rerenderTimeScaleSelection(event) {
-  this.props.handleTimeScaleSelection
+  this.props.handleTimeScaleSelection(event)
+  this.transitionLineChart()
 }
 
  render() {
