@@ -4,14 +4,16 @@
 
 .line {
   shape-rendering: crispEdges;
-  /*stroke: white;*/
+  stroke: #58B5FD;
 }
 
-.axisLeft {
+.axis {
   fill: none;
   stroke: white;
+  color: white;
+  background-color: white;
 }
-ß
+
 path.domain {
   fill: none;
   stroke: white;
