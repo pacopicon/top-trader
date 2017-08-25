@@ -11,6 +11,14 @@ import { select } from 'd3-selection'
 import { transition } from 'd3-transition'
 
 
+// http://paulhoughton.github.io/mortgage/
+// https://github.com/paulhoughton/mortgage/blob/master/src/components/Chart.js
+// https://www.npmjs.com/package/d3
+// d3noob's vanilla JS transitional chart: http://bl.ocks.org/d3noob/7030f35b72de721622b8
+//
+
+
+
 const margin = {top: 20, right: 20, bottom: 80, left: 50},
   fullWidth = 960,
   fullHeight = 600,
