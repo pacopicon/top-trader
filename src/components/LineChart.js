@@ -32,10 +32,6 @@ const lineGenerator = line()
   .x(d => xScale(d.date))
   .y(d => yScale(d.price))
 
-// const datePrice = this.props.GRAPHIC
-// xScale.domain(extent(datePrice, d => d.date))
-// yScale.domain(extent(datePrice, d => d.price))
-
 
 class LineChart extends Component {
   constructor(props){
@@ -51,6 +47,10 @@ class LineChart extends Component {
     // this.createLineChart()
     this.drawAxis()
  }
+
+ // shouldComponentUpdate({ GRAPHIC }) {
+ //
+ // }
 
  componentDidUpdate() {
     // this.createLineChart()
@@ -140,13 +140,6 @@ class LineChart extends Component {
 //
 // }
 
-
-drawAxis() {
-  this.xAxis.call(axisBottom().scale(xScale).ticks(20).tickSize(-height))
-  this.yAxis.call(axisLeft().scale(yScale).ticks(20).tickSize(-width))
-}
-
-
 rerenderSymbolSelection(event) {
   this.props.handleSymbolSelection(event)
   // this.transitionLineChart()
@@ -155,6 +148,16 @@ rerenderSymbolSelection(event) {
 rerenderTimeScaleSelection(event) {
   this.props.handleTimeScaleSelection(event)
   // this.transitionLineChart()
+}
+
+drawAxis() {
+  // const datePrice = this.props.GRAPHIC
+  // xScale.domain(extent(datePrice, d => d.date))
+  // yScale.domain(extent(datePrice, d => d.price))
+  this.xAxis.call(axisBottom().scale(xScale).ticks(20).tickSize(-height))
+  this.yAxis.call(axisLeft().scale(yScale).ticks(20).tickSize(-width))
+  // this.xAxis.call(axisBottom().scale(xScale).ticks(20))
+  // this.yAxis.call(axisLeft().scale(yScale).ticks(20))
 }
 
  render() {
@@ -178,7 +181,11 @@ rerenderTimeScaleSelection(event) {
     var svgStyle = {
     // borderRight: '1px black solid',
     // borderBottom: '1px black solid'
-      border: '1px black solid'
+      // border: '1px white solid'
+    }
+
+    var text = {
+      color: 'white'
     }
 
     return (
@@ -187,7 +194,9 @@ rerenderTimeScaleSelection(event) {
         <svg width='100%' height='100%' viewBox={`0 0 ${fullWidth} ${fullHeight}`} style={svgStyle}>
           <g transform={`translate(${margin.left},${margin.top})`}>
             <g className="axis" ref={r => this.xAxis = select(r) } transform={`translate(0, ${height})`}></g>
-            <g className="axis" ref={r => this.yAxis = select(r) }></g>
+            <g className="axis" ref={r => this.yAxis = select(r) }>
+              <p className="text">price</p>
+            </g>
             <path className="line" ref={r => this.actual = select(r) } d={lineGenerator(datePrice)}></path>
           </g>
         </svg>
@@ -209,6 +218,18 @@ rerenderTimeScaleSelection(event) {
       </div>
     )
   }
+// Do not know how to specify the nextProps argument.  Is it an object, or is it a variable?
+  componentWillReceiveProps(nextProps.GRAPHIC) {
+    if ((nextProps.GRAPHIC.length !== this.props.GRAPHIC.length) || (nextProps.GRAPHIC[0].date !== this.props.GRAPHIC[0].date) || (nextProps.GRAPHIC[0].price !== this.priops.GRAPHIC[0].price) || (nextProps.GRAPHIC[GRAPHIC.length - 1].date !== this.props.GRAPHIC[GRAPHIC.length - 1].date) || (nextProps.GRAPHIC[GRAPHIC.length - 1].price !== this.priops.GRAPHIC[GRAPHIC.length - 1].price) ) {
+      const datePrice = nextProps.GRAPHIC
+      xScale.domain(extent(datePrice, d => d.date))
+      yScale.domain(extent(datePrice, d => d.price))
+
+      this.drawAxis()
+    }
+    this.actual.transition().attr('d', lineGenerator(datePrice))
+  }
+
 }
 
 export default LineChart

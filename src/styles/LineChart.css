@@ -25,7 +25,11 @@ path.domain {
 }
 
 .tick {
-  /*color: white;*/
+  stroke: white;
+}
+
+text {
+  color: white;
 }
 
 .tick text {
@@ -33,10 +37,13 @@ path.domain {
 }
 
 .axisLeft text {
+  color: white;
+  stroke: white;
   font-size: 15px;
 }
 
 .axisBottom text {
+  color: white;
   stroke: white;
   font-size: 15px;
 }
