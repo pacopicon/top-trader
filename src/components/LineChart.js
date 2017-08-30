@@ -9,6 +9,8 @@ import { timeParse, timeFormat } from 'd3-time-format'
 import { line } from 'd3-shape'
 import { select } from 'd3-selection'
 import { transition } from 'd3-transition'
+import * as ease from 'd3-ease'
+import { easement } from '../helpers'
 
 
 // http://paulhoughton.github.io/mortgage/
@@ -16,9 +18,7 @@ import { transition } from 'd3-transition'
 // https://www.npmjs.com/package/d3
 // d3noob's vanilla JS transitional chart: http://bl.ocks.org/d3noob/7030f35b72de721622b8
 //
-
-
-
+// const easement = ease.easeBounce
 const margin = {top: 20, right: 20, bottom: 80, left: 50},
   fullWidth = 960,
   fullHeight = 600,
@@ -36,31 +36,104 @@ const lineGenerator = line()
 class LineChart extends Component {
   constructor(props){
     super(props)
-    this.createLineChart = this.createLineChart.bind(this)
-    this.rerenderSymbolSelection = this.rerenderSymbolSelection.bind(this)
-    this.rerenderTimeScaleSelection = this.rerenderTimeScaleSelection.bind(this)
     this.drawAxis = this.drawAxis.bind(this)
-    // this.transitionLineChart = this.transitionLineChart.bind(this)
   }
 
  componentDidMount() {
-    // this.createLineChart()
+    const datePrice = this.props.GRAPHIC
+    this.actual.transition().duration(1000).ease(easement).attr('d', lineGenerator(datePrice))
     this.drawAxis()
  }
 
- // shouldComponentUpdate({ GRAPHIC }) {
- //
- // }
-
  componentDidUpdate() {
-    // this.createLineChart()
+   const datePrice = this.props.GRAPHIC
+   this.actual.transition().duration(1000).ease(easement).attr('d', lineGenerator(datePrice))
+   this.drawAxis()
  }
 
- // shouldComponentUpdate(this.props.GRAPHIC) {
+ // componentWillUnmount() {
+ //   const datePrice = this.props.GRAPHIC
+ //   this.actual.transition().duration(1000).ease(easement).attr('d', lineGenerator(datePrice))
+ //   this.drawAxis()
+ // }
+
+ // componentWillMount() {
+ //   setTimeout( () => {
+ //     const datePrice = this.props.GRAPHIC
+ //     this.actual.transition().duration(1000).ease(easement).attr('d', lineGenerator(datePrice))
+ //     this.drawAxis()
+ //   }, 1500)
  //
  // }
 
- createLineChart() {
+ // componentWillUpdate(nextProps, nextState) {
+ //
+ //   const datePrice = this.props.GRAPHIC
+ //   xScale.domain(extent(datePrice, d => d.date))
+ //   yScale.domain(extent(datePrice, d => d.price))
+ //
+ //   this.drawAxis()
+ //   this.actual.transition().duration(1000).ease(easement).attr('d', lineGenerator(datePrice))
+ // }
+
+ // Do not know how to specify the nextProps argument.  Is it an object, or is it a variable?
+   // componentWillReceiveProps(nextProps) {
+   //   if ((nextProps.GRAPHIC[0].price !== this.props.GRAPHIC[0].price) || (nextProps.GRAPHIC[GRAPHIC.length - 1].date !== this.props.GRAPHIC[GRAPHIC.length - 1].date) || (nextProps.GRAPHIC[GRAPHIC.length - 1].price !== this.priops.GRAPHIC[GRAPHIC.length - 1].price) ) {
+   //     const datePrice = nextProps.GRAPHIC
+   //     xScale.domain(extent(datePrice, d => d.date))
+   //     yScale.domain(extent(datePrice, d => d.price))
+   //
+   //     this.drawAxis()
+   //   }
+   //   this.actual.transition().attr('d', lineGenerator(datePrice))
+   // }
+
+   // componentWillUpdate(nextProps, nextState) {
+   //   if ((nextProps.GRAPHIC[0].price !== this.props.GRAPHIC[0].price) || (nextProps.GRAPHIC[GRAPHIC.length - 1].date !== this.props.GRAPHIC[GRAPHIC.length - 1].date) || (nextProps.GRAPHIC[GRAPHIC.length - 1].price !== this.priops.GRAPHIC[GRAPHIC.length - 1].price) ) {
+   //     const datePrice = nextProps.GRAPHIC
+   //     xScale.domain(extent(datePrice, d => d.date))
+   //     yScale.domain(extent(datePrice, d => d.price))
+   //
+   //     this.drawAxis()
+   //   }
+   //   this.actual.transition().attr('d', lineGenerator(datePrice))
+   // }
+
+   // componentWillReceiveProps(nextProps) {
+   //   const datePrice = nextProps.GRAPHIC
+   //   if (nextProps !== this.props) {
+   //     xScale.domain(extent(datePrice, d => d.date))
+   //     yScale.domain(extent(datePrice, d => d.price))
+   //
+   //     this.drawAxis()
+   //     this.actual.transition().attr('d', lineGenerator(datePrice))
+   //   }
+   //
+   // }
+
+   // shouldComponentUpdate(nextProps, nextState) {
+   //
+   //   const datePrice = this.props.GRAPHIC
+   //   xScale.domain(extent(datePrice, d => d.date))
+   //   yScale.domain(extent(datePrice, d => d.price))
+   //
+   //   this.drawAxis()
+   //   this.actual.transition().duration(1000).ease(easement).attr('d', lineGenerator(datePrice))
+   //
+   //   return false
+   // }
+
+
+
+
+
+
+
+
+
+
+
+ // createLineChart() {
 
     // const node = this.node,
     //       svg = select(node),
@@ -107,7 +180,7 @@ class LineChart extends Component {
     //   .attr('d', )
        // for some reason React did not let me isolate the line() function into its own variable even though the   { line } fn was imported from d3.shape.
 
-}
+// }
 
 // transitionLineChart() {
 //   const node = this.node,
@@ -139,16 +212,6 @@ class LineChart extends Component {
 //     .call(axisBottom(xScale))
 //
 // }
-
-rerenderSymbolSelection(event) {
-  this.props.handleSymbolSelection(event)
-  // this.transitionLineChart()
-}
-
-rerenderTimeScaleSelection(event) {
-  this.props.handleTimeScaleSelection(event)
-  // this.transitionLineChart()
-}
 
 drawAxis() {
   // const datePrice = this.props.GRAPHIC
@@ -184,9 +247,9 @@ drawAxis() {
       // border: '1px white solid'
     }
 
-    var text = {
-      color: 'white'
-    }
+    // var text = {
+    //   color: 'white'
+    // }
 
     return (
       <div className="lineChart">
@@ -195,7 +258,7 @@ drawAxis() {
           <g transform={`translate(${margin.left},${margin.top})`}>
             <g className="axis" ref={r => this.xAxis = select(r) } transform={`translate(0, ${height})`}></g>
             <g className="axis" ref={r => this.yAxis = select(r) }>
-              <p className="text">price</p>
+              {/* <p className="text">price</p> */}
             </g>
             <path className="line" ref={r => this.actual = select(r) } d={lineGenerator(datePrice)}></path>
           </g>
@@ -206,11 +269,11 @@ drawAxis() {
           <form>
             {
               this.props.securities ?
-                <select onChange={this.rerenderSymbolSelection}>
+                <select onChange={this.props.handleSymbolSelection}>
                   {this.props.renderOptions(this.props.securities)}
                 </select> : <div>waiting on Data</div>
             }
-            <select onChange={this.rerenderTimeScaleSelection}>
+            <select onChange={this.props.handleTimeScaleSelection}>
               {this.props.renderOptions(this.props.timeScales)}
             </select>
           </form>
@@ -218,18 +281,6 @@ drawAxis() {
       </div>
     )
   }
-// Do not know how to specify the nextProps argument.  Is it an object, or is it a variable?
-  componentWillReceiveProps(nextProps.GRAPHIC) {
-    if ((nextProps.GRAPHIC.length !== this.props.GRAPHIC.length) || (nextProps.GRAPHIC[0].date !== this.props.GRAPHIC[0].date) || (nextProps.GRAPHIC[0].price !== this.priops.GRAPHIC[0].price) || (nextProps.GRAPHIC[GRAPHIC.length - 1].date !== this.props.GRAPHIC[GRAPHIC.length - 1].date) || (nextProps.GRAPHIC[GRAPHIC.length - 1].price !== this.priops.GRAPHIC[GRAPHIC.length - 1].price) ) {
-      const datePrice = nextProps.GRAPHIC
-      xScale.domain(extent(datePrice, d => d.date))
-      yScale.domain(extent(datePrice, d => d.price))
-
-      this.drawAxis()
-    }
-    this.actual.transition().attr('d', lineGenerator(datePrice))
-  }
-
 }
 
 export default LineChart

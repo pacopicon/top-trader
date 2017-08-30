@@ -14,7 +14,7 @@ class StockDashboard extends Component {
     super()
     this.exposePrices = this.exposePrices.bind(this)
     this.renderLineChart = this.renderLineChart.bind(this)
-    this.changeChartParams = this.changeChartParams.bind(this)
+    // this.changeChartParams = this.changeChartParams.bind(this)
     this.renderOptions = this.renderOptions.bind(this)
     this.handleSymbolSelection = this.handleSymbolSelection.bind(this)
     this.handleTimeScaleSelection = this.handleTimeScaleSelection.bind(this)
@@ -22,16 +22,13 @@ class StockDashboard extends Component {
     // this.callSecuritiesInfoAPI = this.callSecuritiesInfoAPI.bind(this)
     this.state = {
       renderLineChart: true,
-      // securities: [{'Symbol':'MMM','Name':'3M Company', 'Sector':'Industrials'}],
       securities: getSecuritiesInfo(),
       security: 'MMM',
       timeScales: {'1D':1, '1W':7, '1M':31, '3M':(31*3), '6M':(31*6), '1Y':(365), '2Y':(365*2)},
       timeScale: 1,
       TEXT: ['MMM','3M Company', 'Industrials'],
-      LATEST: [205.3500,205.6300,203.4500,203.5300,1830572],
       NUMERIC: [new Date, 0, 0, 0, 0, 0],
       GRAPHIC: { "Meta Data":{},"Time Series (Daily)":{} }
-      // GRAPHIC: {}
     }
   }
 
@@ -70,10 +67,13 @@ class StockDashboard extends Component {
       var dates = timeScale == 1 ? json['Time Series (1min)'] : json['Time Series (Daily)']
       var priceArray = this.exposePrices(dates)
       var dateArray = Object.keys(dates)
-      console.log(`stock symbol = ${json['Meta Data']["2. Symbol"]}`);
+
+      console.log(`stock symbol = ${json['Meta Data']["2. Symbol"]}`)
+
       // console.log(`dates = ${dates}.  priceArray = ${priceArray}`);
       // Object.values(dates).map(value=>console.log("value: ", value))
       var dataScope = timeScale == 1 ? dateArray.length : timeScale
+      var datePrice = []
       this.parseData = function(dateArray, priceArray, mainIndex) {
         const dyad = {
           date: parseTime(dateArray[mainIndex]),
@@ -86,6 +86,7 @@ class StockDashboard extends Component {
       for (var i=0; i<dataScope; i++) {
         this.parseData(dateArray, priceArray, i)
       }
+      console.log(`time scale = ${datePrice.length}`)
 
       var date = parseTime(dateArray[0])
       var formatTime = timeFormat("%b %d, %Y at %I:%M:%S %p")
@@ -227,9 +228,7 @@ class StockDashboard extends Component {
     var securityArray = string.split(',')
     console.log(`handleSymbolSelection ("symbol") securityArray[0] = ${securityArray[0]}`);
     this.setState({
-      TEXT: securityArray
-    }, () => console.log(`this.state.TEXT[0] ("name") = ${this.state.TEXT[0]}`))
-    this.setState({
+      TEXT: securityArray,
       security: securityArray[0],
       timeScale: timeScale
     }, function onceStateIsUpdated() {
@@ -277,31 +276,31 @@ class StockDashboard extends Component {
   //   }
   // }
 
-  changeChartParams(security, timeScale) {
-
-    if (this.state.security !== '' && this.state.timeScale !== '') {
-      console.log(`First phase (changeChartParams) fired: this.state.renderLineChart = ${this.state.renderLineChart},  this.state.security = ${this.state.security}, this.state.timeScale = ${this.state.timeScale}`)
-      this.setState({
-        security: '',
-        timeScale: 0,
-        renderLineChart: false
-      }, function onceStateIsUpdated() {
-        this.callDatePriceAPI()
-        setTimeout(() => this.changeChartParams(security, timeScale), 300)
-      })
-    } else if (this.state.security == '' || this.state.timeScale == '') {
-      this.setState({
-        security: security,
-        timeScale: timeScale
-      }, function onceStateIsUpdated() {
-        console.log(`Second phase (changeChartParams) fired: this.state.renderLineChart = ${this.state.renderLineChart},  this.state.security = ${this.state.security}, this.state.timeScale = ${this.state.timeScale}`)
-        this.setState({
-          renderLineChart: true
-        })
-        this.callDatePriceAPI()
-      })
-    }
-  }
+  // changeChartParams(security, timeScale) {
+  //
+  //   if (this.state.security !== '' && this.state.timeScale !== '') {
+  //     console.log(`First phase (changeChartParams) fired: this.state.renderLineChart = ${this.state.renderLineChart},  this.state.security = ${this.state.security}, this.state.timeScale = ${this.state.timeScale}`)
+  //     this.setState({
+  //       security: '',
+  //       timeScale: 0,
+  //       renderLineChart: false
+  //     }, function onceStateIsUpdated() {
+  //       this.callDatePriceAPI()
+  //       setTimeout(() => this.changeChartParams(security, timeScale), 300)
+  //     })
+  //   } else if (this.state.security == '' || this.state.timeScale == '') {
+  //     this.setState({
+  //       security: security,
+  //       timeScale: timeScale
+  //     }, function onceStateIsUpdated() {
+  //       console.log(`Second phase (changeChartParams) fired: this.state.renderLineChart = ${this.state.renderLineChart},  this.state.security = ${this.state.security}, this.state.timeScale = ${this.state.timeScale}`)
+  //       this.setState({
+  //         renderLineChart: true
+  //       })
+  //       this.callDatePriceAPI()
+  //     })
+  //   }
+  // }
 
   render() {
     const { selection, TEXT, NUMERIC } = this.state
