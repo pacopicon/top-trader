@@ -2,12 +2,7 @@
   height: 100%;
 }
 
-.line {
-  shape-rendering: crispEdges;
-  stroke: #58B5FD;
-}
-
-.axis {
+.xAxis, .yAxis {
   fill: none;
   stroke: white;
   color: white;
@@ -19,35 +14,46 @@ path.domain {
   stroke: white;
 }
 
+path {
+  fill: none;
+  /*fill: #58B5FD;*/
+  shape-rendering: crispEdges;
+  stroke: #58B5FD;
+  stroke-width: 2;
+  transition-timing-function: ease-in-out;
+}
+
+
+
 .tick line{
   opacity: 0.2;
   stroke: white;
 }
 
-.tick {
-  stroke: white;
-}
-
-text {
-  color: white;
-}
-
-.text {
-  color: white;
-}
-
 .tick text {
-  color: white;
+  fill: white;
+  font-size: 20px;
 }
 
-.axisLeft text {
-  color: white;
-  stroke: white;
-  font-size: 15px;
+.xAxis {
+  text-anchor: end;
 }
 
-.axisBottom text {
-  color: white;
-  stroke: white;
-  font-size: 15px;
+.xAxis .tick text {
+  y: -60px;
+  transform: rotate(-45deg);
+  font-size: 20px;
+}
+
+.chart .changeChart-enter .line {
+  /*transition-duration: 1500ms;*/
+  /*transition: all 1500 ease-in;*/
+  /*opacity: 0.5;*/
+}
+
+.chart .changeChart-enter.changeChart-enter-active .line {
+  /*transition-duration: 1500ms;*/
+  transition: all 1500 ease-in;
+  /*opacity: 1;*/
+  /*transition: opacity .5 ease-in;*/
 }
