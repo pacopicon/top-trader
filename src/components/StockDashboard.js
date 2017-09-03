@@ -45,7 +45,7 @@ class StockDashboard extends Component {
   callDatePriceAPI() {
     const { timeScale } = this.state
     if (timeScale == 1) {
-      var http = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${this.state.TEXT[0]}&interval=1min&apikey=5JSEEXSISXT9VKNO`
+      var http = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${this.state.TEXT[0]}&interval=1min&outputsize=full&apikey=5JSEEXSISXT9VKNO`
     } else {
       var http = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${this.state.TEXT[0]}&outputsize=full&apikey=5JSEEXSISXT9VKNO`
     }
@@ -65,12 +65,37 @@ class StockDashboard extends Component {
       var priceArray = this.exposePrices(dates)
       var dateArray = Object.keys(dates)
 
+      // API IntraDay can be imperfect, and some minutes are left out, need to check that previous trading day time isn't included
+      this.checkDate = function(dateArray) {
+        var newDateArray = []
+        for (var i=0; i<dateArray.length; i++) {
+          var zStr = dateArray[0]
+          var zDay = zStr.charAt(5) + zStr.charAt(6)
+          var iStr = dateArray[i]
+          var iDay = iStr.charAt(5) + iStr.charAt(6)
+          if (iDay == zDay) {
+            newDateArray.push(dateArray[i])
+          }
+        }
+        return newDateArray
+      }
+
+      if (timeScale == 1) {
+        var dateArray = this.checkDate(dateArray)
+        var dataScope = dateArray.length
+      } else {
+        var dataScope = timeScale
+      }
+
       console.log(`stock symbol = ${json['Meta Data']["2. Symbol"]}`)
 
       // console.log(`dates = ${dates}.  priceArray = ${priceArray}`);
       // Object.values(dates).map(value=>console.log("value: ", value))
-      var dataScope = timeScale == 1 ? dateArray.length : timeScale
+      // var dataScope = timeScale == 1 ? 390 : timeScale
+      // var last = dataScope - 1
       var datePrice = []
+      var lowHigh = []
+      var volArr = []
       this.parseData = function(dateArray, priceArray, mainIndex) {
         const dyad = {
           date: parseTime(dateArray[mainIndex]),
@@ -82,46 +107,37 @@ class StockDashboard extends Component {
 
       for (var i=0; i<dataScope; i++) {
         this.parseData(dateArray, priceArray, i)
+        lowHigh.push(Number(priceArray[i][1]))
+        lowHigh.push(Number(priceArray[i][2]))
+        volArr.push(Number(priceArray[0][4]))
       }
-      console.log(`time scale = ${datePrice.length}`)
+      console.log(`dataScope (datePrice.length) = ${datePrice.length}`)
+      console.log(`lowHigh.length = ${lowHigh.length}`)
+      console.log(`volArr.length = ${volArr.length}`)
 
       var date = parseTime(dateArray[0])
       var formatTime = timeFormat("%b %d, %Y at %I:%M:%S %p")
       var formattedDate = formatTime(date)
       var dateStr = formattedDate.toString()
       var alert = parseTime(formattedDate) < new Date ? 'market is closed' : 'up to date'
+      lowHigh.sort((a,b) => a - b)
+      var highest = lowHigh[lowHigh.length-1]
+      var lowest = lowHigh[0]
+      this.getSum = (total,num) => total + num
+      var totalVol = volArr.reduce(this.getSum)
 
-        var length = priceArray.length
-        var last = length-1
-        var highArr = []
-        for (var i=0; i<length; i++) {
-          highArr.push(Number(priceArray[i][1]))
-          highArr.push(Number(priceArray[i][2]))
-        }
-        highArr.sort((a,b) => a - b)
-        var highest = highArr[highArr.last]
-        var lowest = highArr[0]
+      console.log(`highest = ${highest}. lowest = ${lowest}`  );
 
-        var volArr = []
-        for (var i=0; i<length; i++) {
-          volArr.push(Number(priceArray[0][4]))
-        }
-        this.getSum = (total,num) => total + num
-
-        var totalVol = volArr.reduce(this.getSum)
-
-        console.log(`highest = ${highest}. lowest = ${lowest}`  );
-
-        var latestData = {
-          date: dateStr,
-          open: Number(priceArray[last][0]),
-          high: highest,
-          low: lowest,
-          close: Number(priceArray[0][3]),
-          volume: Number(priceArray[0][4]),
-          totalVol: totalVol,
-          alert: alert
-        }
+      var latestData = {
+        date: dateStr,
+        open: Number(priceArray[datePrice.length-1][0]),
+        high: highest,
+        low: lowest,
+        close: Number(priceArray[0][3]),
+        volume: Number(priceArray[0][4]),
+        totalVol: totalVol,
+        alert: alert
+      }
 
       // var latestData = {
       //   date: dateStr,
