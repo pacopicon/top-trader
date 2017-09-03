@@ -43,21 +43,23 @@ class LineChart extends Component {
  componentDidMount() {
     const datePrice = this.props.GRAPHIC
     this.actual.transition().duration(1000).ease(easement).attr('d', lineGenerator(datePrice))
+    // this.actual.attr('d', lineGenerator(datePrice))
     this.drawAxis()
  }
 
  componentDidUpdate() {
    const datePrice = this.props.GRAPHIC
    this.actual.transition().duration(1000).ease(easement).attr('d', lineGenerator(datePrice))
+  //  this.actual.attr('d', lineGenerator(datePrice))
    this.drawAxis()
  }
 
  // componentWillUnmount() {
- //   const datePrice = this.pro ps.GRAPHIC
+ //   const datePrice = this.props.GRAPHIC
  //   this.actual.transition().duration(1000).ease(easement).attr('d', lineGenerator(datePrice))
  //   this.drawAxis()
  // }
-
+ //
  // componentWillMount() {
  //   setTimeout( () => {
  //     const datePrice = this.props.GRAPHIC
@@ -136,38 +138,31 @@ drawAxis() {
 
  render() {
    const datePrice = this.props.GRAPHIC
+   const { NUMERIC, TEXT } = this.props
    xScale.domain(extent(datePrice, d => d.date))
    yScale.domain(extent(datePrice, d => d.price))
 
     var svgStyle = {
     // borderRight: '1px black solid',
     // borderBottom: '1px black solid'
-      // border: '1px white solid'
+      // border: '1px black solid'
     }
+
     return (
       <div className="lineChart">
-
-        {/* <svg width='100%' height='100%' viewBox={`0 0 ${fullWidth} ${fullHeight}`} style={svgStyle}>
-          <g transform={`translate(${margin.left},${margin.top})`}>
-            <g className="xAxis" ref={r => this.xAxis = select(r) } transform={`translate(0, ${height})`}></g>
-            <g className="yAxis" ref={r => this.yAxis = select(r) }></g>
-            <path className="line" ref={r => this.actual = select(r) } d={lineGenerator(datePrice)}></path>
-          </g>
-        </svg> */}
-
-        {/* <svg width='100%' height='100%' viewBox={`0 0 ${fullWidth} ${fullHeight}`} style={svgStyle}>
-          <CSSTransitionGroup
-            transitionName="changeChart"
-            transitionEnterTimeout={500}
-            transitionLeaveTimeout={300}>
-            <g transform={`translate(${margin.left},${margin.top})`}>
-              <g className="xAxis" ref={r => this.xAxis = select(r) } transform={`translate(0, ${height})`}></g>
-              <g className="yAxis" ref={r => this.yAxis = select(r) }></g>
-              <path className="line" ref={r => this.actual = select(r) } d={lineGenerator(datePrice)}></path>
-            </g>
-          </CSSTransitionGroup>
-        </svg> */}
-
+        <div className="stockInfo">
+          <h1><p>{TEXT[0]} ({TEXT[1]}) <small>sector: {TEXT[2]}</small></p></h1>
+          <div className="rightInfo col-xs-6">
+            <h3>open: ${NUMERIC.open}</h3>
+            <h3>high: ${NUMERIC.high}</h3>
+            <h3>low: ${NUMERIC.low}</h3>
+          </div>
+          <div className="leftInfo col-xs-6">
+            <h3>close: ${NUMERIC.close}</h3>
+            <h3>volume: {NUMERIC.volume}</h3>
+            <small>last update: {NUMERIC.date} ({NUMERIC.alert})</small>
+          </div>
+        </div>
         <svg className="chart" width='100%' height='100%' viewBox={`0 0 ${fullWidth} ${fullHeight}`} style={svgStyle}>
           <CSSTransitionGroup
             transitionName="changeChart"
@@ -181,8 +176,6 @@ drawAxis() {
             </g>
           </CSSTransitionGroup>
         </svg>
-
-
         <div className="select">
           <form>
             {

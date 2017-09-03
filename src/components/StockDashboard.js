@@ -13,21 +13,18 @@ class StockDashboard extends Component {
   constructor() {
     super()
     this.exposePrices = this.exposePrices.bind(this)
-    this.renderLineChart = this.renderLineChart.bind(this)
-    // this.changeChartParams = this.changeChartParams.bind(this)
     this.renderOptions = this.renderOptions.bind(this)
     this.handleSymbolSelection = this.handleSymbolSelection.bind(this)
     this.handleTimeScaleSelection = this.handleTimeScaleSelection.bind(this)
     this.callDatePriceAPI = this.callDatePriceAPI.bind(this)
     // this.callSecuritiesInfoAPI = this.callSecuritiesInfoAPI.bind(this)
     this.state = {
-      renderLineChart: true,
       securities: getSecuritiesInfo(),
       security: 'MMM',
       timeScales: {'1D':1, '1W':7, '1M':31, '3M':(31*3), '6M':(31*6), '1Y':(365), '2Y':(365*2)},
       timeScale: 1,
       TEXT: ['MMM','3M Company', 'Industrials'],
-      NUMERIC: [new Date, 0, 0, 0, 0, 0],
+      NUMERIC: [new Date, 0, 0, 0, 0, 0, 0],
       GRAPHIC: { "Meta Data":{},"Time Series (Daily)":{} }
     }
   }
@@ -48,9 +45,9 @@ class StockDashboard extends Component {
   callDatePriceAPI() {
     const { timeScale } = this.state
     if (timeScale == 1) {
-      var http = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${this.state.security}&interval=1min&apikey=5JSEEXSISXT9VKNO`
+      var http = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${this.state.TEXT[0]}&interval=1min&apikey=5JSEEXSISXT9VKNO`
     } else {
-      var http = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${this.state.security}&outputsize=full&apikey=5JSEEXSISXT9VKNO`
+      var http = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${this.state.TEXT[0]}&outputsize=full&apikey=5JSEEXSISXT9VKNO`
     }
 
     var timeString = timeScale == 1 ? '%Y-%m-%d %H:%M:%S' : '%Y-%m-%d'
@@ -60,7 +57,7 @@ class StockDashboard extends Component {
     fetch(http)
     .then(response => {
       return response.json()
-      console.log(`callDatePriceAPI fired. timeScale = ${timeScale}, this.state.security = ${this.state.security}. http = ${http} `);
+      console.log(`callDatePriceAPI fired. timeScale = ${timeScale}, this.state.TEXT[0] = ${this.state.TEXT[0]}. http = ${http} `);
     })
     .then(json => {
       console.log('callDatePriceAPI json parsing SUCCEEDED!!!')
@@ -94,15 +91,47 @@ class StockDashboard extends Component {
       var dateStr = formattedDate.toString()
       var alert = parseTime(formattedDate) < new Date ? 'market is closed' : 'up to date'
 
-      var latestData = {
-        date: dateStr,
-        open: Number(priceArray[0][0]),
-        high: Number(priceArray[0][1]),
-        low: Number(priceArray[0][2]),
-        close: Number(priceArray[0][3]),
-        volume: Number(priceArray[0][4]),
-        alert: alert
-      }
+        var length = priceArray.length
+        var last = length-1
+        var highArr = []
+        for (var i=0; i<length; i++) {
+          highArr.push(Number(priceArray[i][1]))
+          highArr.push(Number(priceArray[i][2]))
+        }
+        highArr.sort((a,b) => a - b)
+        var highest = highArr[highArr.last]
+        var lowest = highArr[0]
+
+        var volArr = []
+        for (var i=0; i<length; i++) {
+          volArr.push(Number(priceArray[0][4]))
+        }
+        this.getSum = (total,num) => total + num
+
+        var totalVol = volArr.reduce(this.getSum)
+
+        console.log(`highest = ${highest}. lowest = ${lowest}`  );
+
+        var latestData = {
+          date: dateStr,
+          open: Number(priceArray[last][0]),
+          high: highest,
+          low: lowest,
+          close: Number(priceArray[0][3]),
+          volume: Number(priceArray[0][4]),
+          totalVol: totalVol,
+          alert: alert
+        }
+
+      // var latestData = {
+      //   date: dateStr,
+      //   open: Number(priceArray[0][0]),
+      //   high: Number(priceArray[0][1]),
+      //   low: Number(priceArray[0][2]),
+      //   close: Number(priceArray[0][3]),
+      //   volume: Number(priceArray[0][4]),
+      //   alert: alert
+      // }
       this.setState({
         GRAPHIC: datePrice,
         NUMERIC: latestData
@@ -188,18 +217,6 @@ class StockDashboard extends Component {
     // this.callSecuritiesInfoAPI()
   }
 
-  renderLineChart() {
-    return this.state.renderLineChart ? <LineChart className="lineChart"
-      GRAPHIC={this.state.GRAPHIC}
-      timeScale={this.state.timeScale}
-      timeScales={this.state.timeScales}
-      securities={this.state.securities}
-      renderOptions={this.renderOptions}
-      handleSymbolSelection={this.handleSymbolSelection}
-      handleTimeScaleSelection={this.handleTimeScaleSelection}
-    /> : null
-  }
-
   renderOptions(options) {
     var selection = []
     if (Array.isArray(options)) { // Does var options refer to array of Securities info objects or to Object of timeScale / modifier  key-values?
@@ -211,17 +228,6 @@ class StockDashboard extends Component {
     return options.map(selection)
   }
 
-  // handleSymbolSelection(event) {
-  //   const { timeScale } = this.state
-  //   var string = event.target.value
-  //   var securityArray = string.split(',')
-  //   console.log(`handleSymbolSelection ("symbol") securityArray[0] = ${securityArray[0]}`);
-  //   this.setState({
-  //     TEXT: securityArray
-  //   }, () => console.log(`this.state.TEXT[0] ("name") = ${this.state.TEXT[0]}`))
-  //   this.changeChartParams(securityArray[0], timeScale)
-  // }
-
   handleSymbolSelection(event) {
     const { timeScale } = this.state
     var string = event.target.value
@@ -229,7 +235,6 @@ class StockDashboard extends Component {
     console.log(`handleSymbolSelection ("symbol") securityArray[0] = ${securityArray[0]}`);
     this.setState({
       TEXT: securityArray,
-      security: securityArray[0],
       timeScale: timeScale
     }, function onceStateIsUpdated() {
       this.callDatePriceAPI()
@@ -237,104 +242,33 @@ class StockDashboard extends Component {
   }
 
   handleTimeScaleSelection(event) {
-    const { security, timeScales } = this.state
+    const { TEXT, timeScales } = this.state
     var modifier = timeScales[event.target.value]
     console.log("handleTimeScaleSelection modifier = ", modifier);
     console.log("typeof modifier = ", typeof modifier);
     // this.changeChartParams(security, modifier)
     this.setState({
-      security: security,
+      TEXT: TEXT,
       timeScale: modifier
     }, function onceStateIsUpdated() {
       this.callDatePriceAPI()
     })
   }
 
-  // changeChartParams(security, timeScale) {
-  //
-  //   if (this.state.security !== '' && this.state.timeScale !== '') {
-  //     console.log(`First phase (changeChartParams) fired: this.state.renderLineChart = ${this.state.renderLineChart},  this.state.security = ${this.state.security}, this.state.timeScale = ${this.state.timeScale}`)
-  //     this.setState({
-  //       security: '',
-  //       timeScale: 0,
-  //       renderLineChart: false
-  //     }, function onceStateIsUpdated() {
-  //       this.callDatePriceAPI()
-  //       setTimeout(() => this.changeChartParams(security, timeScale), 300)
-  //     })
-  //   } else if (this.state.security == '' || this.state.timeScale == '') {
-  //     this.setState({
-  //       security: security,
-  //       timeScale: timeScale
-  //     }, function onceStateIsUpdated() {
-  //       console.log(`Second phase (changeChartParams) fired: this.state.renderLineChart = ${this.state.renderLineChart},  this.state.security = ${this.state.security}, this.state.timeScale = ${this.state.timeScale}`)
-  //       this.setState({
-  //         renderLineChart: true
-  //       })
-  //       this.callDatePriceAPI()
-  //     })
-  //   }
-  // }
-
-  // changeChartParams(security, timeScale) {
-  //
-  //   if (this.state.security !== '' && this.state.timeScale !== '') {
-  //     console.log(`First phase (changeChartParams) fired: this.state.renderLineChart = ${this.state.renderLineChart},  this.state.security = ${this.state.security}, this.state.timeScale = ${this.state.timeScale}`)
-  //     this.setState({
-  //       security: '',
-  //       timeScale: 0,
-  //       renderLineChart: false
-  //     }, function onceStateIsUpdated() {
-  //       this.callDatePriceAPI()
-  //       setTimeout(() => this.changeChartParams(security, timeScale), 300)
-  //     })
-  //   } else if (this.state.security == '' || this.state.timeScale == '') {
-  //     this.setState({
-  //       security: security,
-  //       timeScale: timeScale
-  //     }, function onceStateIsUpdated() {
-  //       console.log(`Second phase (changeChartParams) fired: this.state.renderLineChart = ${this.state.renderLineChart},  this.state.security = ${this.state.security}, this.state.timeScale = ${this.state.timeScale}`)
-  //       this.setState({
-  //         renderLineChart: true
-  //       })
-  //       this.callDatePriceAPI()
-  //     })
-  //   }
-  // }
-
   render() {
-    const { selection, TEXT, NUMERIC } = this.state
     return (
         <div className="dashboard">
-          <div className="stockInfo">
-            <h1><p>{TEXT[0]} ({TEXT[1]}) <small>sector: {TEXT[2]}</small></p></h1>
-            <div className="rightInfo col-xs-6">
-              <h3>open: ${NUMERIC.open}</h3>
-              <h3>high: ${NUMERIC.high}</h3>
-              <h3>low: ${NUMERIC.low}</h3>
-            </div>
-            <div className="leftInfo col-xs-6">
-              <h3>close: ${NUMERIC.close}</h3>
-              <h3>volume: {NUMERIC.volume}</h3>
-              <small>last update: {NUMERIC.date} ({NUMERIC.alert})</small>
-            </div>
-          </div>
-          <div className="chart">
-            {this.renderLineChart()}
-          </div>
-          {/* <div className="select">
-            <form>
-              {
-                this.state.securities ?
-                  <select onChange={this.handleSymbolSelection}>
-                    {this.renderOptions(this.state.securities)}
-                  </select> : <div>waiting on Data</div>
-              }
-              <select onChange={this.handleTimeScaleSelection}>
-                {this.renderOptions(this.state.timeScales)}
-              </select>
-            </form>
-          </div> */}
+          <LineChart className="lineChart"
+            GRAPHIC={this.state.GRAPHIC}
+            TEXT={this.state.TEXT}
+            NUMERIC={this.state.NUMERIC}
+            timeScale={this.state.timeScale}
+            timeScales={this.state.timeScales}
+            securities={this.state.securities}
+            renderOptions={this.renderOptions}
+            handleSymbolSelection={this.handleSymbolSelection}
+            handleTimeScaleSelection={this.handleTimeScaleSelection}
+          />
       </div>
     )
   }

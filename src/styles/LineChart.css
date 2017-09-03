@@ -18,7 +18,8 @@ path {
   fill: none;
   /*fill: #58B5FD;*/
   shape-rendering: crispEdges;
-  stroke: #58B5FD;
+  /*stroke: #58B5FD;*/
+  stroke: white;
   stroke-width: 2;
   transition-timing-function: ease-in-out;
 }
@@ -52,8 +53,8 @@ path {
 }
 
 .chart .changeChart-enter.changeChart-enter-active .line {
-  /*transition-duration: 1500ms;*/
-  transition: all 1500 ease-in;
+  transition-duration: 3000ms;
+  /*transition: all 1500 ease-in;*/
   /*opacity: 1;*/
   /*transition: opacity .5 ease-in;*/
 }
