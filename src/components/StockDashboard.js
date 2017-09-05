@@ -21,7 +21,7 @@ class StockDashboard extends Component {
     this.state = {
       securities: getSecuritiesInfo(),
       security: 'MMM',
-      timeScales: {'1D':1, '1W':7, '1M':31, '3M':(31*3), '6M':(31*6), '1Y':(365), '2Y':(365*2)},
+      timeScales: {'1D':1, '1W':8, '1M':32, '3M':(94), '6M':(187), '1Y':(366), '2Y':(731)},
       timeScale: 1,
       TEXT: ['MMM','3M Company', 'Industrials'],
       NUMERIC: [new Date, 0, 0, 0, 0, 0, 0],
@@ -32,12 +32,12 @@ class StockDashboard extends Component {
   exposePrices(obj) {
     var result = [];
     for (var prop in obj) {
-        var value = obj[prop];
-        if (typeof value === 'object') {
-            result.push(this.exposePrices(value)) // <- recursive call
-        } else {
-            result.push(value);
-        }
+      var value = obj[prop];
+      if (typeof value === 'object') {
+        result.push(this.exposePrices(value)) // <- recursive call
+      } else {
+        result.push(value);
+      }
     }
     return result;
   }
@@ -50,10 +50,6 @@ class StockDashboard extends Component {
       var http = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${this.state.TEXT[0]}&outputsize=full&apikey=5JSEEXSISXT9VKNO`
     }
 
-    var timeString = timeScale == 1 ? '%Y-%m-%d %H:%M:%S' : '%Y-%m-%d'
-    var parseTime = timeParse(timeString)
-    var datePrice = []
-
     fetch(http)
     .then(response => {
       return response.json()
@@ -61,13 +57,11 @@ class StockDashboard extends Component {
     })
     .then(json => {
       console.log('callDatePriceAPI json parsing SUCCEEDED!!!')
-      var dates = timeScale == 1 ? json['Time Series (1min)'] : json['Time Series (Daily)']
-      var priceArray = this.exposePrices(dates)
-      var dateArray = Object.keys(dates)
 
       // API IntraDay can be imperfect, and some minutes are left out, need to check that previous trading day time isn't included
-      this.checkDate = function(dateArray) {
+      this.checkIntraday = function(dateArray, priceArray) {
         var newDateArray = []
+        var newPriceArray = []
         for (var i=0; i<dateArray.length; i++) {
           var zStr = dateArray[0]
           var zDay = zStr.charAt(5) + zStr.charAt(6)
@@ -75,17 +69,65 @@ class StockDashboard extends Component {
           var iDay = iStr.charAt(5) + iStr.charAt(6)
           if (iDay == zDay) {
             newDateArray.push(dateArray[i])
+            newPriceArray.push(priceArray[i])
           }
         }
-        return newDateArray
+        console.log(`are date and price arrays of equal length? ${newDateArray.length == newPriceArray.length}`);
+        var newArrays = {
+          dateArr: newDateArray,
+          priceArr: newPriceArray
+        }
+        return newArrays
+      }
+      this.unpack = function(str) {
+        var month = Number(str.charAt(5) + str.charAt(6))
+        var day = Number(str.charAt(8) + str.charAt(9))
+        var year = Number(str.charAt(0) + str.charAt(1) + str.charAt(2) + str.charAt(3))
+        var dateInfo = {
+          year: year,
+          month: month - 1,
+          day: day,
+          date: new Date(year, month-1, day, 0, 0, 0, 0)
+        }
+        return dateInfo
       }
 
-      if (timeScale == 1) {
-        var dateArray = this.checkDate(dateArray)
-        var dataScope = dateArray.length
-      } else {
-        var dataScope = timeScale
+      this.checkDate = function(dateArray, priceArray, timeScale) {
+        var newDateArray = []
+        var newPriceArray = []
+        var z = this.unpack(dateArray[0])
+        var pastLimit = new Date(z.year, z.month, z.day-timeScale, 0, 0, 0, 0)
+        for (var i=0; i<dateArray.length; i++) {
+          var iDate = this.unpack(dateArray[i]).date
+          if (pastLimit <= iDate) {
+            newDateArray.push(dateArray[i])
+            newPriceArray.push(priceArray[i])
+          }
+        }
+        console.log(`are date and price arrays of equal length? ${newDateArray.length == newPriceArray.length}`);
+        var newArrays = {
+          dateArr: newDateArray,
+          priceArr: newPriceArray
+        }
+        return newArrays
       }
+
+      var dates = timeScale == 1 ? json['Time Series (1min)'] : json['Time Series (Daily)']
+      var priceArray = this.exposePrices(dates)
+      var dateArray = Object.keys(dates)
+
+      if (timeScale == 1) {
+        var c = this.checkIntraday(dateArray, priceArray) // c = check
+        var dataScope = c.dateArr.length
+        var timeString = '%Y-%m-%d %H:%M:%S'
+      } else {
+        var c = this.checkDate(dateArray, priceArray, timeScale) // c = check
+        var dataScope = timeScale
+        var timeString = '%Y-%m-%d'
+      }
+
+      var dateArray = c.dateArr
+      var priceArray = c.priceArr
 
       console.log(`stock symbol = ${json['Meta Data']["2. Symbol"]}`)
 
@@ -93,6 +135,7 @@ class StockDashboard extends Component {
       // Object.values(dates).map(value=>console.log("value: ", value))
       // var dataScope = timeScale == 1 ? 390 : timeScale
       // var last = dataScope - 1
+      var parseTime = timeParse(timeString)
       var datePrice = []
       var lowHigh = []
       var volArr = []
@@ -155,9 +198,12 @@ class StockDashboard extends Component {
     })
     .catch(error => {
       console.log('callDatePriceAPI json parsing failed: ', error)
+      var timeString = '%Y-%m-%d'
       var formatTime = timeFormat(timeString)
       var dateArray = [formatTime(new Date), formatTime(new Date)]
       var dataScope = dateArray.length
+      var parseTime = timeParse(timeString)
+      var datePrice = []
 
       this.parseData = function(dateArray, mainIndex) {
 
