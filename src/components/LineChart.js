@@ -159,7 +159,7 @@ drawAxis() {
           </div>
           <div className="leftInfo col-xs-6">
             <h3>close: ${NUMERIC.close}</h3>
-            <h3>volume: {NUMERIC.volume}</h3>
+            <h3>volume: {NUMERIC.totalVol}</h3>
             <small>last update: {NUMERIC.date} ({NUMERIC.alert})</small>
           </div>
         </div>

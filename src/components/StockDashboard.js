@@ -64,14 +64,17 @@ class StockDashboard extends Component {
         var newPriceArray = []
         for (var i=0; i<dateArray.length; i++) {
           var zStr = dateArray[0]
-          var zDay = zStr.charAt(5) + zStr.charAt(6)
+          var zDay = zStr.charAt(8) + zStr.charAt(9)
           var iStr = dateArray[i]
-          var iDay = iStr.charAt(5) + iStr.charAt(6)
+          var iDay = iStr.charAt(8) + iStr.charAt(9)
           if (iDay == zDay) {
             newDateArray.push(dateArray[i])
             newPriceArray.push(priceArray[i])
           }
         }
+        // var lastStr = dateArray[dateArray.length-1]
+        // var lastDay = lastStr.charAt(8) + lastStr.charAt(9)
+        // console.log(`last in dateArray = ${lastDay}`);
         console.log(`are date and price arrays of equal length? ${newDateArray.length == newPriceArray.length}`);
         var newArrays = {
           dateArr: newDateArray,
@@ -104,7 +107,7 @@ class StockDashboard extends Component {
             newPriceArray.push(priceArray[i])
           }
         }
-        console.log(`are date and price arrays of equal length? ${newDateArray.length == newPriceArray.length}`);
+        console.log(`newDateArray.length = ${newDateArray.length}.  newPriceArray.length = ${newPriceArray.length}.`);
         var newArrays = {
           dateArr: newDateArray,
           priceArr: newPriceArray
@@ -117,17 +120,15 @@ class StockDashboard extends Component {
       var dateArray = Object.keys(dates)
 
       if (timeScale == 1) {
-        var c = this.checkIntraday(dateArray, priceArray) // c = check
-        var dataScope = c.dateArr.length
+        var f = this.checkIntraday(dateArray, priceArray) // f = filtered
         var timeString = '%Y-%m-%d %H:%M:%S'
       } else {
-        var c = this.checkDate(dateArray, priceArray, timeScale) // c = check
-        var dataScope = timeScale
+        var f = this.checkDate(dateArray, priceArray, timeScale) // f = filtered
         var timeString = '%Y-%m-%d'
       }
-
-      var dateArray = c.dateArr
-      var priceArray = c.priceArr
+      var dataScope = f.dateArr.length
+      var dateArray = f.dateArr
+      var priceArray = f.priceArr
 
       console.log(`stock symbol = ${json['Meta Data']["2. Symbol"]}`)
 
@@ -139,20 +140,23 @@ class StockDashboard extends Component {
       var datePrice = []
       var lowHigh = []
       var volArr = []
-      this.parseData = function(dateArray, priceArray, mainIndex) {
+      this.parseData = function(dateArray, priceArray, i) {
         const dyad = {
-          date: parseTime(dateArray[mainIndex]),
-          price: Number(priceArray[mainIndex][3])
+          date: parseTime(dateArray[i]),
+          price: Number(priceArray[i][3])
         }
+        // console.log("Number(priceArray[mainIndex][3]) = ", Number(priceArray[mainIndex][3]));
         datePrice.push(dyad)
         return datePrice
       }
+
+      console.log("datePrice = ", datePrice);
 
       for (var i=0; i<dataScope; i++) {
         this.parseData(dateArray, priceArray, i)
         lowHigh.push(Number(priceArray[i][1]))
         lowHigh.push(Number(priceArray[i][2]))
-        volArr.push(Number(priceArray[0][4]))
+        volArr.push(Number(priceArray[i][4]))
       }
       console.log(`dataScope (datePrice.length) = ${datePrice.length}`)
       console.log(`lowHigh.length = ${lowHigh.length}`)
@@ -177,20 +181,10 @@ class StockDashboard extends Component {
         high: highest,
         low: lowest,
         close: Number(priceArray[0][3]),
-        volume: Number(priceArray[0][4]),
+        // volume: Number(priceArray[0][4]),
         totalVol: totalVol,
         alert: alert
       }
-
-      // var latestData = {
-      //   date: dateStr,
-      //   open: Number(priceArray[0][0]),
-      //   high: Number(priceArray[0][1]),
-      //   low: Number(priceArray[0][2]),
-      //   close: Number(priceArray[0][3]),
-      //   volume: Number(priceArray[0][4]),
-      //   alert: alert
-      // }
       this.setState({
         GRAPHIC: datePrice,
         NUMERIC: latestData
