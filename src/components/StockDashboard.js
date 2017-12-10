@@ -3,6 +3,7 @@ import { render } from 'react-dom'
 import '../styles/StockDashboard.css'
 import BarChart from './BarChart'
 import LineChart from './LineChart'
+import Chart from './Chart'
 import { serializeProps, getSecuritiesInfo } from '../helpers'
 import { timeParse, timeFormat } from 'd3-time-format'
 // import { callSecuritiesInfoAPI } from '../securitiesHelper';
@@ -25,6 +26,7 @@ class StockDashboard extends Component {
       timeScale: 1,
       TEXT: ['MMM','3M Company', 'Industrials'],
       NUMERIC: [new Date, 0, 0, 0, 0, 0, 0],
+      data: [0,0,0,0,0],
       GRAPHIC: { "Meta Data":{},"Time Series (Daily)":{} }
     }
   }
@@ -185,9 +187,14 @@ class StockDashboard extends Component {
         totalVol: totalVol,
         alert: alert
       }
+
+      var data = [
+        Number(priceArray[datePrice.length-1][0]), highest, lowest, Number(priceArray[0][3]), totalVol ]
+
       this.setState({
         GRAPHIC: datePrice,
-        NUMERIC: latestData
+        NUMERIC: latestData,
+        data: data
        })
     })
     .catch(error => {
@@ -227,7 +234,8 @@ class StockDashboard extends Component {
       this.setState({
         GRAPHIC: { "Meta Data":{},"Time Series (Daily)":{} },
         // GRAPHIC: datePrice,
-        NUMERIC: latestData
+        NUMERIC: latestData,
+        data: [0,0,0,0,0]
        })
     })
   }
@@ -312,6 +320,7 @@ class StockDashboard extends Component {
   }
 
   render() {
+
     return (
         <div className="dashboard">
           <LineChart className="lineChart"
@@ -324,6 +333,9 @@ class StockDashboard extends Component {
             renderOptions={this.renderOptions}
             handleSymbolSelection={this.handleSymbolSelection}
             handleTimeScaleSelection={this.handleTimeScaleSelection}
+          />
+          <Chart
+            data={this.state.data}
           />
       </div>
     )
