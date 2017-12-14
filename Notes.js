@@ -1,3 +1,7 @@
+var source = `https://www.cryptocompare.com/api/?javascript#-api-data-histohour-`
+
+var exactHTML = `https://min-api.cryptocompare.com/data/histohour?fsym=BTC&tsym=USD&limit=60&aggregate=3&e=CCCAGG`
+
 var obj = {
 "Response": "Success",
 "Type": 100,
@@ -583,14 +587,76 @@ var yesterday = dayAgo(obj.TimeTo)
 
 var filter24 = function(arr, yesterday) {
   var last24hrs = []
+  var totalVol = 0
+  var highs = []
+  var vols = []
+  var lows = []
   for (var i=0; i<arr.length; i++) {
     if (arr[i].time >= yesterday) {
       last24hrs.push(arr[i])
+      highs.push(arr[i].high)
+      lows.push(arr[i].low)
+      vols.push(arr[i].volumefrom)
+      totalVol += arr[i].volumefrom
     }
   }
-  return last24hrs 
+  var last24Data = {
+    last24hrs: last24hrs,
+    highs:highs,
+    lows:lows,
+    vols:vols,
+    totalVol: totalVol
+  }
+  
+  return last24Data
+}
 
-// 2. 
+var last24Data = filter24(obj.Data, yesterday)
+
+// 2. Calculate VWAP for the trades in the new array:
+// 2.1 Derive the highest high in the last24Data set along with its associated low and volume
+// 2.2 Derive the lowest low in the last24Data set along with its associated high and volume
+// 2.3 Average highest high with its assoc. low and multiply by its assoc. volume
+// 2.4 Average lowest low iwth its assoc. high and multiply by its assoc. volume
+// 2.5 Average results of 2.3 and 2.4
+// Result of 2.5 is divided by total volume:
+
+var totalVol = last24Data.totalVol
+
+var highs = last24Data.highs.sort()
+
+var lows = last24Data.lows.sort()
+
+var highest = highs[highs.length-1]
+
+var lowest = lows[0]
+
+var vols = last24Data.vols
+
+var correlate = function(sortResult, unSorted, associatedArr) {
+    var i = unSorted.indexOf(sortResult)
+    return associatedArr[i]
+}
+
+var lowToHighest = correlate(highest,highs,lows)
+
+var highToLowest = correlate(lowest,lows,highs)
+
+var highVol = correlate(highest,highs,vols)
+
+var lowVol = correlate(lowest,lows,vols)
+
+var highestAVG = (highest + lowToHighest)/2
+
+var lowestAVG = (lowest + highToLowest)/2
+
+var highestTimesVol = highestAVG * highVol
+
+var lowestTimesVol = lowestAVG * lowVol
+
+var VWAP = (highestTimesVol + lowestTimesVol/2)/totalVol
+
+
 
 
 
