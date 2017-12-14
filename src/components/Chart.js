@@ -129,7 +129,7 @@ class Chart extends React.Component {
         return d
       })
 
-    this.props.animateFauxDOM(800) 
+    this.props.animateFauxDOM(2000) 
 
     // d3.select('text').text(this.props.title)
   }

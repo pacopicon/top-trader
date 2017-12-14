@@ -2,16 +2,15 @@ import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 import { withFauxDOM } from 'react-faux-dom'
 import '../styles/LineChart.css'
-import { scaleLinear, scaleTime } from 'd3-scale'
-import { axisRight, axisBottom, axisTop, axisLeft } from 'd3-axis'
-import { max, extent } from 'd3-array'
-import { timeDay, timeWeek, timeMonth } from 'd3-time'
-import { timeParse, timeFormat } from 'd3-time-format'
-import { line } from 'd3-shape'
-import { select } from 'd3-selection'
-import { transition } from 'd3-transition'
-import * as ease from 'd3-ease'
-import { TransitionGroup } from 'react-transition-group'
+// import { scaleLinear, scaleTime } from 'd3-scale'
+// import { axisBottom, axisLeft } from 'd3-axis'
+// import { extent } from 'd3-array'
+// import { line } from 'd3-shape'
+// import { select } from 'd3-selection'
+// import { transition } from 'd3-transition'
+// import * as ease from 'd3-ease'
+// import { TransitionGroup } from 'react-transition-group'
+import * as d3 from 'd3'
 
 // Code Research Resources:
 // http://paulhoughton.github.io/mortgage/
@@ -28,12 +27,12 @@ const margin = {top: 20, right: 20, bottom: 80, left: 50},
   width = fullWidth - margin.left - margin.right,
   height = fullHeight - margin.top - margin.bottom
 
-const easement = ease.easeBounce
+// const easement = ease.easeBounce
 
-const xScale = scaleTime().rangeRound([0, width])
-const yScale = scaleLinear().rangeRound([height, 0])
+const xScale = d3.scaleTime().rangeRound([0, width])
+const yScale = d3.scaleLinear().rangeRound([height, 0])
 
-const lineGenerator = line()
+const lineGenerator = d3.line()
   .x(d => xScale(d.date))
   .y(d => yScale(d.price))
 
@@ -131,7 +130,7 @@ class LineChart extends Component {
   //     </div>
 
   // lineGenerator(d) {
-  //   line()
+  //   d3.line()
   //   .x(d => xScale(d.date))
   //   .y(d => yScale(d.price))
   // }
@@ -141,21 +140,22 @@ class LineChart extends Component {
 
     var faux = this.props.connectFauxDOM('div', 'chart')
 
-    var svg = select(faux).append("svg")
+    var svg = d3.select(faux).append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
-    xScale.domain(extent(datePrice, d => d.date))
-    yScale.domain(extent(datePrice, d => d.price))
+    xScale.domain(d3.extent(datePrice, d => d.date))
+    yScale.domain(d3.extent(datePrice, d => d.price))
 
-    var xAxis = axisBottom().scale(xScale).ticks(20).tickSize(-height)
-    var yAxis = axisLeft().scale(yScale).ticks(10).tickSize(-width)
+    var xAxis = d3.axisBottom().scale(xScale).ticks(20).tickSize(-height)
+    var yAxis = d3.axisLeft().scale(yScale).ticks(10).tickSize(-width)
 
     svg.append("path")
       .attr("class", "line")
       .attr("d", lineGenerator(datePrice))
+      .transition().duration(500)
 
     svg.append("g")
       .attr("class", "x axis")
@@ -173,51 +173,75 @@ class LineChart extends Component {
 
     var faux = this.props.connectFauxDOM('div', 'chart')
 
-    var svg = select(faux).select("svg")
+    var svg = d3.select(faux).select("svg")
 
-    xScale.domain(extent(datePrice, d => d.date))
-    yScale.domain(extent(datePrice, d => d.price))
+    xScale.domain(d3.extent(datePrice, d => d.date))
+    yScale.domain(d3.extent(datePrice, d => d.price))
 
-    var xAxis = axisBottom().scale(xScale).ticks(20).tickSize(-height)
-    var yAxis = axisLeft().scale(yScale).ticks(10).tickSize(-width)
+    var xAxis = d3.axisBottom().scale(xScale).ticks(20).tickSize(-height)
+    var yAxis = d3.axisLeft().scale(yScale).ticks(10).tickSize(-width)
 
     // var svg = select(faux).transition()
 
-    var line = svg.select(".line").attr("d", lineGenerator(datePrice))
+    // var line = svg.select(".line")
+
+    svg.select('.line')
+      .datum(datePrice)
+        .attr({
+          'd': lineGenerator,
+          'stroke-dasharray': '385 385',
+          'stroke-dashoffset': 385
+        })
+      .transition()
+        .duration(1500)
+        .attr('stroke-dashoffset', 0)
+
+
+        // .datum(data)
+        //         .attr("class", "line")
+        //         .transition()
+        //         .duration(500)
+    
+    // line.attr("d", lineGenerator(datePrice)).transition().duration(500)
+    
+
+
     var x = svg.select(".x.axis").call(xAxis)
     var y = svg.select(".y.axis").call(yAxis)
 
-    line.exit().remove()
-    line.enter()
-      .append("path")
-      .attr("class", "line")
-      .attr("d", lineGenerator(datePrice))
 
-    x.exit().remove()
-    x.enter()
-      .append("g")
-      .attr("class", "y axis")
+    
 
-    y.exit().remove()
-    y.enter()
-      .append("g")
-      .attr("class", "y axis")
+    // line.exit().remove()
+    // line.enter()
+    //   .append("path")
+    //   .attr("class", "line")
+    //   .attr("d", lineGenerator(datePrice))
 
-     // updating line, xAxis and yAxis
-    line
-      .transition()   // change the line
-      .duration(750)
-      .attr("d", lineGenerator(datePrice))
-    x 
-      .transition() // change the x axis
-      .duration(750)
-      .call(xAxis)
-    y 
-      .transition() // change the y axis
-      .duration(750)
-      .call(yAxis)
+    // x.exit().remove()
+    // x.enter()
+    //   .append("g")
+    //   .attr("class", "y axis")
 
-    this.props.animateFauxDOM(800)
+    // y.exit().remove()
+    // y.enter()
+    //   .append("g")
+    //   .attr("class", "y axis")
+
+    // line
+    //   .transition()   
+    //   .duration(750)
+    //   .attr("d", lineGenerator(datePrice))
+    // x 
+    //   .transition() 
+    //   .duration(750)
+    //   .call(xAxis)
+    // y 
+    //   .transition()
+    //   .duration(750)
+    //   .call(yAxis)
+
+    this.props.animateFauxDOM(2000)
 
   }
 
