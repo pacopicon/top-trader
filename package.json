@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "classnames": "^2.2.5",
-    "d3": "^4.9.1",
+    "d3": "^5.7.0",
     "d3-array": "1.2.0",
     "d3-axis": "1.0.8",
     "d3-brush": "1.0.4",
@@ -17,10 +17,10 @@
     "d3-time": "1.0.7",
     "d3-time-format": "2.0.5",
     "d3-transition": "^1.1.0",
-    "react": "^15.6.1",
-    "react-dom": "^15.6.1",
-    "react-faux-dom": "4.0.3",
-    "react-transition-group": "^1.2.0",
+    "react": "^16.5.2",
+    "react-dom": "^16.5.2",
+    "react-faux-dom": "4.2.0",
+    "react-transition-group": "^2.2.1",
     "whatwg-fetch": "^2.0.3"
   },
   "devDependencies": {

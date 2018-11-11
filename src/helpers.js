@@ -1,4 +1,4 @@
-import { tradeData } from './JSONdata';
+import { tradeData } from './components/JSONdata';
 import * as ease from 'd3-ease'
 
 

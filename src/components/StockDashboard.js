@@ -1,10 +1,7 @@
 import React, { Component } from 'react'
-import { render } from 'react-dom'
 import '../styles/StockDashboard.css'
-import BarChart from './BarChart'
 import LineChart from './LineChart'
-import Chart from './Chart'
-import { serializeProps, getSecuritiesInfo } from '../helpers'
+import { getSecuritiesInfo } from '../helpers'
 import { timeParse, timeFormat } from 'd3-time-format'
 // import { callSecuritiesInfoAPI } from '../securitiesHelper';
 // import { tradeData, mcrsft } from '../JSONdata';
@@ -13,28 +10,51 @@ import { timeParse, timeFormat } from 'd3-time-format'
 class StockDashboard extends Component {
   constructor() {
     super()
-    this.exposePrices = this.exposePrices.bind(this)
-    this.renderOptions = this.renderOptions.bind(this)
-    this.handleSymbolSelection = this.handleSymbolSelection.bind(this)
-    this.handleTimeScaleSelection = this.handleTimeScaleSelection.bind(this)
-    this.callDatePriceAPI = this.callDatePriceAPI.bind(this)
-    // this.callSecuritiesInfoAPI = this.callSecuritiesInfoAPI.bind(this)
     this.state = {
+      isFinDataHere: false,
+      body_width: document.body.clientWidth,
       securities: getSecuritiesInfo(),
       security: 'MMM',
       timeScales: {'1D':1, '1W':8, '1M':32, '3M':(94), '6M':(187), '1Y':(366), '2Y':(731)},
       timeScale: 1,
       TEXT: ['MMM','3M Company', 'Industrials'],
-      NUMERIC: [new Date, 0, 0, 0, 0, 0, 0],
+      NUMERIC: [new Date(), 0, 0, 0, 0, 0, 0],
       data: [0,0,0,0,0],
       GRAPHIC: { "Meta Data":{},"Time Series (Daily)":{} }
     }
+
+    this.exposePrices = this.exposePrices.bind(this)
+    this.renderSecuritiesOptions = this.renderSecuritiesOptions.bind(this)
+    this.renderTimeOptions = this.renderTimeOptions.bind(this)
+    this.handleSymbolSelection = this.handleSymbolSelection.bind(this)
+    this.handleTimeScaleSelection = this.handleTimeScaleSelection.bind(this)
+    this.callDatePriceAPI = this.callDatePriceAPI.bind(this)
+    window.addEventListener("resize", this.resize().bind(this));
+    // this.callSecuritiesInfoAPI = this.callSecuritiesInfoAPI.bind(this)
+    
   }
 
+  resize() {
+    let t;
+
+    return event => {
+      if (t) {
+        clearTimeout(t)
+      }
+      t = setTimeout( () => {
+        const state = Object.assign(this.state, {
+          body_width: document.body.clientWidth
+        });
+        this.setState(state)
+      }, 100)
+    }
+  }
+
+
   exposePrices(obj) {
-    var result = [];
-    for (var prop in obj) {
-      var value = obj[prop];
+    let result = [];
+    for (let prop in obj) {
+      let value = obj[prop];
       if (typeof value === 'object') {
         result.push(this.exposePrices(value)) // <- recursive call
       } else {
@@ -46,138 +66,138 @@ class StockDashboard extends Component {
 
   callDatePriceAPI() {
     const { timeScale } = this.state
-    if (timeScale == 1) {
-      var http = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${this.state.TEXT[0]}&interval=1min&outputsize=full&apikey=5JSEEXSISXT9VKNO`
+    let http = ''
+    if (timeScale === 1) {
+      http = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${this.state.TEXT[0]}&interval=1min&outputsize=full&apikey=5JSEEXSISXT9VKNO`
     } else {
-      var http = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${this.state.TEXT[0]}&outputsize=full&apikey=5JSEEXSISXT9VKNO`
+      http = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${this.state.TEXT[0]}&outputsize=full&apikey=5JSEEXSISXT9VKNO`
     }
 
     fetch(http)
     .then(response => {
       return response.json()
-      console.log(`callDatePriceAPI fired. timeScale = ${timeScale}, this.state.TEXT[0] = ${this.state.TEXT[0]}. http = ${http} `);
     })
     .then(json => {
       console.log('callDatePriceAPI json parsing SUCCEEDED!!!')
 
       // API IntraDay can be imperfect, and some minutes are left out, need to check that previous trading day time isn't included
       this.checkIntraday = function(dateArray, priceArray) {
-        var newDateArray = []
-        var newPriceArray = []
-        for (var i=0; i<dateArray.length; i++) {
-          var zStr = dateArray[0]
-          var zDay = zStr.charAt(8) + zStr.charAt(9)
-          var iStr = dateArray[i]
-          var iDay = iStr.charAt(8) + iStr.charAt(9)
-          if (iDay == zDay) {
+        let 
+          newDateArray = [],
+          newPriceArray = []
+        for (let i=0; i<dateArray.length; i++) {
+          let 
+            zStr = dateArray[0],
+            zDay = zStr.charAt(8) + zStr.charAt(9),
+            iStr = dateArray[i],
+            iDay = iStr.charAt(8) + iStr.charAt(9)
+          if (iDay === zDay) {
             newDateArray.push(dateArray[i])
             newPriceArray.push(priceArray[i])
           }
         }
-        // var lastStr = dateArray[dateArray.length-1]
-        // var lastDay = lastStr.charAt(8) + lastStr.charAt(9)
+        // let lastStr = dateArray[dateArray.length-1]
+        // let lastDay = lastStr.charAt(8) + lastStr.charAt(9)
         // console.log(`last in dateArray = ${lastDay}`);
-        console.log(`are date and price arrays of equal length? ${newDateArray.length == newPriceArray.length}`);
-        var newArrays = {
+        // console.log(`are date and price arrays of equal length? ${newDateArray.length= == newPriceArray.length}`);
+        let newArrays = {
           dateArr: newDateArray,
           priceArr: newPriceArray
         }
         return newArrays
       }
       this.unpack = function(str) {
-        var month = Number(str.charAt(5) + str.charAt(6))
-        var day = Number(str.charAt(8) + str.charAt(9))
-        var year = Number(str.charAt(0) + str.charAt(1) + str.charAt(2) + str.charAt(3))
-        var dateInfo = {
-          year: year,
-          month: month - 1,
-          day: day,
-          date: new Date(year, month-1, day, 0, 0, 0, 0)
-        }
+        let 
+          month = Number(str.charAt(5) + str.charAt(6)),
+          day = Number(str.charAt(8) + str.charAt(9)),
+          year = Number(str.charAt(0) + str.charAt(1) + str.charAt(2) + str.charAt(3)),
+          dateInfo = {
+            year: year,
+            month: month - 1,
+            day: day,
+            date: new Date(year, month-1, day, 0, 0, 0, 0)
+          }
         return dateInfo
       }
 
       this.checkDate = function(dateArray, priceArray, timeScale) {
-        var newDateArray = []
-        var newPriceArray = []
-        var z = this.unpack(dateArray[0])
-        var pastLimit = new Date(z.year, z.month, z.day-timeScale, 0, 0, 0, 0)
-        for (var i=0; i<dateArray.length; i++) {
-          var iDate = this.unpack(dateArray[i]).date
+        let 
+          newDateArray  = [],
+          newPriceArray = [],
+          z             = this.unpack(dateArray[0]),
+          pastLimit     = new Date(z.year, z.month, z.day-timeScale, 0, 0, 0, 0)
+
+        for (let i=0; i<dateArray.length; i++) {
+          let iDate = this.unpack(dateArray[i]).date
           if (pastLimit <= iDate) {
             newDateArray.push(dateArray[i])
             newPriceArray.push(priceArray[i])
           }
         }
-        console.log(`newDateArray.length = ${newDateArray.length}.  newPriceArray.length = ${newPriceArray.length}.`);
-        var newArrays = {
+
+        let newArrays = {
           dateArr: newDateArray,
           priceArr: newPriceArray
         }
         return newArrays
       }
 
-      var dates = timeScale == 1 ? json['Time Series (1min)'] : json['Time Series (Daily)']
-      var priceArray = this.exposePrices(dates)
-      var dateArray = Object.keys(dates)
+      let 
+        dates = timeScale === 1 ? json['Time Series (1min)'] : json['Time Series (Daily)'],
+        priceArr = this.exposePrices(dates),
+        dateArr = Object.keys(dates),
+        f,
+        timeString
 
-      if (timeScale == 1) {
-        var f = this.checkIntraday(dateArray, priceArray) // f = filtered
-        var timeString = '%Y-%m-%d %H:%M:%S'
+      if (timeScale === 1) {
+        f = this.checkIntraday(dateArr, priceArr) // f = filtered
+        timeString = '%Y-%m-%d %H:%M:%S'
       } else {
-        var f = this.checkDate(dateArray, priceArray, timeScale) // f = filtered
-        var timeString = '%Y-%m-%d'
+        f = this.checkDate(dateArr, priceArr, timeScale) // f = filtered
+        timeString = '%Y-%m-%d'
       }
-      var dataScope = f.dateArr.length
-      var dateArray = f.dateArr
-      var priceArray = f.priceArr
+      let 
+        dataScope  = f.dateArr.length,
+        dateArray  = f.dateArr,
+        priceArray = f.priceArr,
+        parseTime  = timeParse(timeString),
+        datePrice  = [],
+        lowHigh    = [],
+        volArr     = []
 
-      console.log(`stock symbol = ${json['Meta Data']["2. Symbol"]}`)
-
-      // console.log(`dates = ${dates}.  priceArray = ${priceArray}`);
-      // Object.values(dates).map(value=>console.log("value: ", value))
-      // var dataScope = timeScale == 1 ? 390 : timeScale
-      // var last = dataScope - 1
-      var parseTime = timeParse(timeString)
-      var datePrice = []
-      var lowHigh = []
-      var volArr = []
       this.parseData = function(dateArray, priceArray, i) {
         const dyad = {
           date: parseTime(dateArray[i]),
           price: Number(priceArray[i][3])
         }
-        // console.log("Number(priceArray[mainIndex][3]) = ", Number(priceArray[mainIndex][3]));
         datePrice.push(dyad)
         return datePrice
       }
 
-      console.log("datePrice = ", datePrice);
-
-      for (var i=0; i<dataScope; i++) {
+      for (let i=0; i<dataScope; i++) {
         this.parseData(dateArray, priceArray, i)
         lowHigh.push(Number(priceArray[i][1]))
         lowHigh.push(Number(priceArray[i][2]))
         volArr.push(Number(priceArray[i][4]))
       }
-      console.log(`dataScope (datePrice.length) = ${datePrice.length}`)
-      console.log(`lowHigh.length = ${lowHigh.length}`)
-      console.log(`volArr.length = ${volArr.length}`)
-
-      var date = parseTime(dateArray[0])
-      var formatTime = timeFormat("%b %d, %Y at %I:%M:%S %p")
-      var formattedDate = formatTime(date)
-      var dateStr = formattedDate.toString()
-      var alert = parseTime(formattedDate) < new Date ? 'market is closed' : 'up to date'
+    
+      let 
+        date          = parseTime(dateArray[0]),
+        formatTime    = timeFormat("%b %d, %Y at %I:%M:%S %p"),
+        formattedDate = formatTime(date),
+        dateStr       = formattedDate.toString(),
+        alert         = parseTime(formattedDate) < new Date ? 'market is closed' : 'up to date'
+      
       lowHigh.sort((a,b) => a - b)
-      var highest = lowHigh[lowHigh.length-1]
-      var lowest = lowHigh[0]
+        
+      let
+        highest = lowHigh[lowHigh.length-1],
+        lowest = lowHigh[0]
+      
       this.getSum = (total,num) => total + num
-      var totalVol = volArr.reduce(this.getSum)
+      let totalVol = volArr.reduce(this.getSum)
 
-      console.log(`highest = ${highest}. lowest = ${lowest}`  );
-
-      var latestData = {
+      let latestData = {
         date: dateStr,
         open: Number(priceArray[datePrice.length-1][0]),
         high: highest,
@@ -188,23 +208,25 @@ class StockDashboard extends Component {
         alert: alert
       }
 
-      var data = [
+      let data = [
         Number(priceArray[datePrice.length-1][0]), highest, lowest, Number(priceArray[0][3]), totalVol ]
 
       this.setState({
         GRAPHIC: datePrice,
         NUMERIC: latestData,
-        data: data
+        data: data,
+        isFinDataHere: true
        })
     })
     .catch(error => {
       console.log('callDatePriceAPI json parsing failed: ', error)
-      var timeString = '%Y-%m-%d'
-      var formatTime = timeFormat(timeString)
-      var dateArray = [formatTime(new Date), formatTime(new Date)]
-      var dataScope = dateArray.length
-      var parseTime = timeParse(timeString)
-      var datePrice = []
+      let 
+        timeString = '%Y-%m-%d',
+        formatTime = timeFormat(timeString),
+        dateArray  = [formatTime(new Date), formatTime(new Date)],
+        dataScope  = dateArray.length,
+        parseTime  = timeParse(timeString),
+        datePrice  = []
 
       this.parseData = function(dateArray, mainIndex) {
 
@@ -216,13 +238,13 @@ class StockDashboard extends Component {
         return datePrice
       }
 
-      for (var i=0; i<dataScope; i++) {
+      for (let i=0; i<dataScope; i++) {
         this.parseData(dateArray, i)
       }
 
-      var dateString = (new Date).toString()
-
-        var latestData = {
+      let 
+        dateString = (new Date).toString(),
+        latestData = {
           date: dateString,
           open: 0,
           high: 0,
@@ -231,7 +253,9 @@ class StockDashboard extends Component {
           volume: 0,
           nowDate: 'market is closed'
         }
+
       this.setState({
+        isFinDataHere: true,
         GRAPHIC: { "Meta Data":{},"Time Series (Daily)":{} },
         // GRAPHIC: datePrice,
         NUMERIC: latestData,
@@ -242,21 +266,21 @@ class StockDashboard extends Component {
 
   // callSecuritiesInfoAPI() {
   //
-  //   var myHeaders = new Headers({
+  //   let myHeaders = new Headers({
   //     'Access-Control-Allow-Origin': 'http://localhost:3000/',
   //     'Content-Type': 'multipart/form-data'
   //   });
   //
-  //   var myInit = {
+  //   let myInit = {
   //     method : 'GET',
   //     headers: myHeaders,
   //     mode   : 'cors',
   //     cache  : 'default'
   //   }
   //
-  //   var http = 'https://pkgstore.datahub.io/core/s-and-p-500-companies/latest/data/json/data/constituents.json'
+  //   let http = 'https://pkgstore.datahub.io/core/s-and-p-500-companies/latest/data/json/data/constituents.json'
   //
-  //   var myRequest = new Request(http, myInit)
+  //   let myRequest = new Request(http, myInit)
   //
   //   fetch(myRequest)
   //   .then(response => {
@@ -275,27 +299,50 @@ class StockDashboard extends Component {
   //   })
   // }
 
-  componentDidMount() {
+  componentWillMount() {
     this.callDatePriceAPI()
     getSecuritiesInfo()
     // this.callSecuritiesInfoAPI()
   }
 
-  renderOptions(options) {
-    var selection = []
-    if (Array.isArray(options)) { // Does var options refer to array of Securities info objects or to Object of timeScale / modifier  key-values?
-      selection = (opt, i) => <option key={i} value={[opt['Symbol'], opt.Name, opt.Sector]}>{opt.Name}</option>
-    } else {
-      var options = Object.keys(options) // options begins as object here.  need to make it into array
-      selection = (opt, i) => <option key={i} value={opt}>{opt}</option>
+  renderSecuritiesOptions() {
+    let { securities } = this.state
+    
+    if (securities) {
+      let selectOptions = securities.map((security) => 
+        <option key={security.Symbol} value={security.Symbol}>{security.Symbol}</option>
+      )
+  
+      return (
+        <select onChange={this.handleSymbolSelection}>
+          {selectOptions}
+        </select> 
+      )
     }
-    return options.map(selection)
+  }
+
+  renderTimeOptions() {
+    let { timeScales } = this.state
+
+    if (timeScales) {
+      let 
+        periods       = Object.keys(timeScales),
+        selectOptions = periods.map((period) => 
+          <option key={period} value={timeScales[period]}>{period}</option>
+        )
+  
+      return (
+        <select onChange={this.handleTimeScaleSelection}>
+          {selectOptions}
+        </select> 
+      )
+    }
   }
 
   handleSymbolSelection(event) {
     const { timeScale } = this.state
-    var string = event.target.value
-    var securityArray = string.split(',')
+    let string = event.target.value
+    let securityArray = string.split(',')
     console.log(`handleSymbolSelection ("symbol") securityArray[0] = ${securityArray[0]}`);
     this.setState({
       TEXT: securityArray,
@@ -307,7 +354,7 @@ class StockDashboard extends Component {
 
   handleTimeScaleSelection(event) {
     const { TEXT, timeScales } = this.state
-    var modifier = timeScales[event.target.value]
+    let modifier = timeScales[event.target.value]
     console.log("handleTimeScaleSelection modifier = ", modifier);
     console.log("typeof modifier = ", typeof modifier);
     // this.changeChartParams(security, modifier)
@@ -322,21 +369,28 @@ class StockDashboard extends Component {
   render() {
 
     return (
-        <div className="dashboard">
-          <LineChart className="lineChart"
-            GRAPHIC={this.state.GRAPHIC}
-            TEXT={this.state.TEXT}
-            NUMERIC={this.state.NUMERIC}
-            timeScale={this.state.timeScale}
-            timeScales={this.state.timeScales}
-            securities={this.state.securities}
-            renderOptions={this.renderOptions}
-            handleSymbolSelection={this.handleSymbolSelection}
-            handleTimeScaleSelection={this.handleTimeScaleSelection}
-          />
-          <Chart
-            data={this.state.data}
-          />
+      <div className="dashboard">
+        {
+          this.state.isFinDataHere 
+          ? <div>
+              <LineChart className="lineChart"
+                width={this.state.body_width}
+                height={400}
+                margin={{top: 20, right: 20, bottom: 80, left: 50}}
+                GRAPHIC={this.state.GRAPHIC}
+                TEXT={this.state.TEXT}
+                NUMERIC={this.state.NUMERIC}
+                timeScale={this.state.timeScale}
+                timeScales={this.state.timeScales}
+                securities={this.state.securities}
+                renderSecuritiesOptions={this.renderSecuritiesOptions}
+                renderTimeOptions={this.renderTimeOptions}
+                handleSymbolSelection={this.handleSymbolSelection}
+                handleTimeScaleSelection={this.handleTimeScaleSelection}
+              />
+            </div>
+          : ''
+        }
       </div>
     )
   }

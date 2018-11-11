@@ -2,7 +2,6 @@ import React from 'react';
 // import rebase from '../base';
 import '../styles/Nav.css';
 import Clock from './Clock'
-import PropTypes from 'prop-types';
 
 class Nav extends React.Component {
   constructor() {
@@ -11,15 +10,10 @@ class Nav extends React.Component {
   }
 
   renderBtn() {
-    if (this.props.linkClicked) {
-      return (
-        <button className="linkBtn" aria-hidden="true" name="this.props.linkClicked" value={this.props.linkClicked} onClick={() => this.props.handleLinkToggle(false)}><p>Stocks</p></button>
-      )
-    } else if (!this.props.linkClicked) {
-      return (
-        <button className="linkBtn" aria-hidden="true" name="this.props.linkClicked" value={!this.props.linkClicked} onClick={() => this.props.handleLinkToggle(true)}><p>Traders</p></button>
-      )
-    }
+    return (
+      <button className="linkBtn" aria-hidden="true" name="this.props.linkClicked" value={true} onClick={() => alert('this button was clicked')}><p>Traders</p></button>
+    )
+    
   }
 
   render() {

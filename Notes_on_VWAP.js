@@ -601,7 +601,7 @@ var filter24 = function(arr, yesterday) {
     }
   }
   var last24Data = {
-    last24hrs: last24hrs,
+    last24hrs: last24hrs,  // not needed in a strict sense
     highs:highs,
     lows:lows,
     vols:vols,
@@ -656,7 +656,15 @@ var lowestTimesVol = lowestAVG * lowVol
 
 var VWAP = (highestTimesVol + lowestTimesVol/2)/totalVol
 
+// the Full formula for our VWAP calculation is:
 
+//              (((highest high + its low)/2 * its vol) + ((lowest low + its high)/2) * its vol) / 2
+// var VWAP =  ------------------------------------------------------------------------------------
+//                                                  total vol
+
+// 3. Should we cache the API data requests?
+// 3.1 We should probably cache the Pulling of hourly trades from several exchanges for the past 24 hours.
+// 3.2 This "probably" becomes more and more a "definitely" if we want to widen the time frame in which we calculate a VWAP
 
 
 
