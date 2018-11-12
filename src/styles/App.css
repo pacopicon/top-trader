@@ -3,7 +3,7 @@ Body {
   font-family: 'Poppins', sans-serif;
   /*font-family: 'Montserrat', sans-serif*/
   /*background-color: black;*/
-  background-color: #3f4e62;
+  background-color:black;
 }
 
 .hidden {
@@ -32,15 +32,3 @@ Body {
   color: white;
 }
 
-.traders {
-  margin-left: 1em;
-}
-
-.traders p {
-  text-align: left;
-}
-
-.trades, .score {
-  margin-left: 1em;
-  text-align: left;
-}

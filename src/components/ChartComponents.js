@@ -87,7 +87,9 @@ export const Line = D3blackbox(function() {
     // .attr("transform", `translate(${this.props.xSlide}, 0)`)
     // .attr("transform", `translate(0, ${this.props.ySlide})`)
     .on("end", () => {
-      valueLine.attr("d", path);
+      valueLine
+        .attr("d", path)
+
       current.attr("transform", null);
     });
 

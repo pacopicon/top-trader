@@ -10,17 +10,17 @@
 }
 
 path.domain {
-  fill: none;
+  fill: ;
   stroke: white;
 }
 
 path {
+  /* fill: #58B5FD; */
   fill: none;
-  /*fill: #58B5FD;*/
-  shape-rendering: crispEdges;
+  shape-rendering: geometricPrecision;
   /*stroke: #58B5FD;*/
-  stroke: white;
-  stroke-width: 2;
+  stroke: #58B5FD;
+  stroke-width: 1;
   transition-timing-function: ease-in-out;
 }
 
@@ -33,17 +33,18 @@ path {
 
 .tick text {
   fill: white;
-  font-size: 20px;
+  font-size: 15px;
+  text-anchor: start;
 }
 
 .xAxis {
-  text-anchor: end;
+  text-anchor: start;
 }
 
 .xAxis .tick text {
   y: -60px;
   transform: rotate(-45deg);
-  font-size: 20px;
+  font-size: 15px;
 }
 
 .chart .changeChart-enter .line {

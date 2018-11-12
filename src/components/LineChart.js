@@ -13,7 +13,9 @@ import { XAxis, YAxis, YGrid, Line } from "./ChartComponents.js";
 
 class LineChart extends Component {
   constructor(props){
-    super(props)  
+    super(props) 
+    
+    this.renderLineChart = this.renderLineChart.bind(this)
   }
 
   xFn = (d) => {
@@ -55,39 +57,78 @@ class LineChart extends Component {
     
   }
 
-  render() {
-
-    const datePriceData = this.props.GRAPHIC, 
-      { NUMERIC, TEXT }  = this.props,
-      { xScale, yScale } = this.updateScale(this.props),
-      { plotWidth, plotHeight } = this.updatePlotSize(this.props)
+  renderLineChart(datePriceData) {
+    if (datePriceData) {
+      const
+        { xScale, yScale } = this.updateScale(this.props),
+        { plotWidth, plotHeight } = this.updatePlotSize(this.props)
     
-    console.log('datePriceData = ', datePriceData)
-    // console.log('TEXT = ', TEXT)
-    
-    let metaData, plotData
-
-      if (datePriceData) {
-        metaData = {
-          xScale: xScale,
-          yScale: yScale,
-          plotWidth: plotWidth,
-          plotHeight: plotHeight,
-          xSlide: xScale(this.xFn(datePriceData)),
-          ySlide: yScale(this.yFn(datePriceData))
-        },
-        plotData = {
-          plotData: datePriceData.map((d, i) => {
-            return {
-              id: i,
-              data: d,
-              x: xScale(this.xFn(d)),
-              y: yScale(this.yFn(d))
-            };
-          })
-        }
+      console.log('datePriceData = ', datePriceData)
+      console.log('xScale(this.xFn(datePriceData)) = ', xScale(this.xFn(datePriceData)))
+      
+      let metaData, plotData
+        
+      metaData = {
+        xScale: xScale,
+        yScale: yScale,
+        plotWidth: plotWidth,
+        plotHeight: plotHeight,
+        xSlide: xScale(this.xFn(datePriceData)),
+        ySlide: yScale(this.yFn(datePriceData))
+      },
+      plotData = {
+        plotData: datePriceData.map((d, i) => {
+          return {
+            id: i,
+            data: d,
+            x: xScale(this.xFn(d)),
+            y: yScale(this.yFn(d))
+          };
+        })
       }
 
+      console.log('metaData = ', metaData)
+      console.log('plotData = ', plotData)
+
+      return (
+        <div className="chartContainer">
+          <svg width={this.props.width} height={this.props.height}>
+            <g
+              className="axisLaeyr"
+              width={plotWidth}
+              height={plotHeight}
+              transform={`translate(${this.props.margin.left}, ${this.props.margin
+                .top})`}
+            >
+              <YGrid {...metaData} />
+              <XAxis {...metaData} transform={`translate(0,${plotHeight})`} />
+              {/*<YAxis {...metaData} />*/}
+              <YAxis {...metaData} transform={`translate(${plotWidth}, 0)`} />
+            </g>
+            <g
+              className="plotLayer"
+              width={plotWidth}
+              height={plotHeight}
+              transform={`translate(${this.props.margin.left}, ${this.props.margin
+                .top})`}
+            >
+              <Line {...metaData} {...plotData} />
+            </g>
+          </svg>
+        </div>
+      )
+    } else {
+      return <div>Fetching data...</div>
+    }
+
+  }
+
+  render() {
+
+    const 
+      datePriceData      = this.props.GRAPHIC,
+      { NUMERIC, TEXT }  = this.props
+    
     return (
       <div className="lineChart">
         <div className="stockInfo">
@@ -103,37 +144,7 @@ class LineChart extends Component {
             <small>last update: {NUMERIC.date} ({NUMERIC.alert})</small>
           </div>
         </div>
-
-
-        {
-          datePriceData
-          ? <svg width={this.props.width} height={this.props.height}>
-              <g
-                className="axisLaeyr"
-                width={plotWidth}
-                height={plotHeight}
-                transform={`translate(${this.props.margin.left}, ${this.props.margin
-                  .top})`}
-              >
-                <YGrid {...metaData} />
-                <XAxis {...metaData} transform={`translate(0,${plotHeight})`} />
-                {/*<YAxis {...metaData} />*/}
-                <YAxis {...metaData} transform={`translate(${plotWidth}, 0)`} />
-              </g>
-              <g
-                className="plotLayer"
-                width={plotWidth}
-                height={plotHeight}
-                transform={`translate(${this.props.margin.left}, ${this.props.margin
-                  .top})`}
-              >
-                <Line {...metaData} {...plotData} />
-              </g>
-            </svg>
-          : <div>Fetching data...</div>
-        }
-
-
+        { this.renderLineChart(datePriceData) }
         <div className="select">
           <form>
             {

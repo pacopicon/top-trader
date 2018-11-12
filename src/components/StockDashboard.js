@@ -8,12 +8,14 @@ import callDatePriceAPI from './APIcall'
 // import { tradeData, mcrsft } from '../JSONdata';
 // import { microsoft } from '../ApiCalls';
 
+const widMod = .60
+
 class StockDashboard extends Component {
   constructor() {
     super()
     this.state = {
       isFinDataHere: false,
-      body_width: document.body.clientWidth,
+      body_width: document.body.clientWidth * widMod,
       securities: getSecuritiesInfo(),
       security: 'MMM',
       timeScales: {'1D':1, '1W':8, '1M':32, '3M':(94), '6M':(187), '1Y':(366), '2Y':(731)},
@@ -45,7 +47,7 @@ class StockDashboard extends Component {
       }
       t = setTimeout( () => {
         const state = Object.assign(this.state, {
-          body_width: document.body.clientWidth
+          body_width: document.body.clientWidth * widMod
         });
         this.setState(state)
       }, 100)
@@ -98,14 +100,14 @@ class StockDashboard extends Component {
      })
   }
 
-  // componentWillMount() {
-  //   this.setState({
-  //     TEXT: ['MMM','3M Company', 'Industrials'],
-  //     timeScale: 1
-  //   }, () => {
-  //     callDatePriceAPI(this.state.timeScale, this.state.TEXT[0], this.updateData)
-  //   })
-  // }
+  componentWillMount() {
+    this.setState({
+      TEXT: ['MMM','3M Company', 'Industrials'],
+      timeScale: 1
+    }, () => {
+      callDatePriceAPI(this.state.timeScale, this.state.TEXT[0], this.updateData)
+    })
+  }
 
   // componentDidMount() {
   //   const { timeScale, TEXT } = this.state
@@ -116,14 +118,14 @@ class StockDashboard extends Component {
   //   // this.callSecuritiesInfoAPI()
   // }
 
-  componentDidMount() {
-    this.setState({
-      TEXT: ['MMM','3M Company', 'Industrials'],
-      timeScale: 1
-    }, () => {
-      callDatePriceAPI(this.state.timeScale, this.state.TEXT[0], this.updateData)
-    })
-  }
+  // componentDidMount() {
+  //   this.setState({
+  //     TEXT: ['MMM','3M Company', 'Industrials'],
+  //     timeScale: 1
+  //   }, () => {
+  //     callDatePriceAPI(this.state.timeScale, this.state.TEXT[0], this.updateData)
+  //   })
+  // }
 
 
 
@@ -213,11 +215,11 @@ class StockDashboard extends Component {
       <div className="dashboard">
         {
           this.state.isFinDataHere 
-          ? <div>
+          ? <div className="LineChartContainer">
               <LineChart className="lineChart"
                 width={this.state.body_width}
                 height={400}
-                margin={{top: 20, right: 20, bottom: 80, left: 50}}
+                margin={{top: 20, right: 100, bottom: 80, left: 50}}
                 GRAPHIC={this.state.GRAPHIC}
                 TEXT={this.state.TEXT}
                 NUMERIC={this.state.NUMERIC}
