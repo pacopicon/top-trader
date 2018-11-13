@@ -9,10 +9,16 @@
   background-color: white;
 }
 
-path.domain {
-  fill: ;
+/* .xAxis line {
+  fill: none;
   stroke: white;
+  stroke-width: 1;
 }
+
+path.domain {
+  fill: none;
+  stroke: white;
+} */
 
 path {
   /* fill: #58B5FD; */
@@ -24,38 +30,25 @@ path {
   transition-timing-function: ease-in-out;
 }
 
-
-
 .tick line{
   opacity: 0.2;
   stroke: white;
 }
 
-.tick text {
+text {
   fill: white;
   font-size: 15px;
+}
+
+.yAxis .tick text {
   text-anchor: start;
 }
 
 .xAxis {
-  text-anchor: start;
+  text-anchor: end;
 }
 
 .xAxis .tick text {
-  y: -60px;
-  transform: rotate(-45deg);
+  transform: rotate(-45deg) !important;
   font-size: 15px;
-}
-
-.chart .changeChart-enter .line {
-  /*transition-duration: 1500ms;*/
-  /*transition: all 1500 ease-in;*/
-  /*opacity: 0.5;*/
-}
-
-.chart .changeChart-enter.changeChart-enter-active .line {
-  transition-duration: 3000ms;
-  /*transition: all 1500 ease-in;*/
-  /*opacity: 1;*/
-  /*transition: opacity .5 ease-in;*/
 }
