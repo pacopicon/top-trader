@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import '../styles/StockDashboard.css'
 import LineChart from './LineChart'
+import LineChart2 from './LineChart2'
 import { getSecuritiesInfo } from '../helpers'
 // import { timeParse, timeFormat } from 'd3-time-format'
 import callDatePriceAPI from './APIcall'
@@ -231,6 +232,13 @@ class StockDashboard extends Component {
                 handleSymbolSelection={this.handleSymbolSelection}
                 handleTimeScaleSelection={this.handleTimeScaleSelection}
               />
+            </div>
+          : ''
+        }
+        {
+          this.state.isFinDataHere 
+          ? <div className="LineChartContainer">
+              <LineChart2 />
             </div>
           : ''
         }
