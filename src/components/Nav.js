@@ -11,7 +11,7 @@ class Nav extends React.Component {
 
   renderBtn() {
     return (
-      <button className="linkBtn" aria-hidden="true" name="this.props.linkClicked" value={true} onClick={() => alert('this button was clicked')}><p>Traders</p></button>
+      <button className="linkBtn" aria-hidden="true" name="this.props.linkClicked" value={true} onClick={() => alert('this button was clicked')}><p>example</p></button>
     )
     
   }
