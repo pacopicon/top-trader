@@ -9,6 +9,7 @@ class LineChart3 extends React.Component {
     super();
 
     this.state = {
+      totalLength: '',
       securities: getSecuritiesInfo(),
       security: 'MMM',
       timeScales: {'1D':1, '1W':8, '1M':32, '3M':(94), '6M':(187), '1Y':(366), '2Y':(731)},
@@ -34,6 +35,43 @@ class LineChart3 extends React.Component {
      })
   }
 
+  componentWillReceiveProps(nextProps) {
+    let 
+      oldData = this.props.data,
+      newData = nextProps.data
+    
+    if (oldData != newData) {
+      let { 
+        data,
+        NUMERIC,
+        TEXT
+      } = nextProps
+
+      this.setState({
+        data,
+        NUMERIC,
+        TEXT
+      }, () => {
+
+        let line = d3.selectAll("#line");
+        var totalLength = line.node().getTotalLength();
+        console.log(totalLength);
+        line
+          .attr("stroke-dasharray", totalLength)
+          .attr("stroke-dashoffset", totalLength)
+          .attr("stroke-width", 6)
+          .attr("stroke", "#6788ad")
+          .transition()
+          .duration(1000)
+          .ease(d3.easeLinear)
+          .attr("stroke-width", 0)
+          .attr("stroke-dashoffset", 0);
+
+      })
+      
+    }
+  }
+
   componentDidMount() {
     // fetch(
     //   "https://min-api.cryptocompare.com/data/histominute?fsym=BTC&tsym=USD&limit=60&aggregate=3&e=CCCAGG"
@@ -56,6 +94,22 @@ class LineChart3 extends React.Component {
       data,
       NUMERIC,
       TEXT
+    }, () => {
+
+      let line = d3.selectAll("#line");
+      var totalLength = line.node().getTotalLength();
+      console.log(totalLength);
+      line
+        .attr("stroke-dasharray", totalLength)
+        .attr("stroke-dashoffset", totalLength)
+        .attr("stroke-width", 6)
+        .attr("stroke", "#6788ad")
+        .transition()
+        .duration(1000)
+        .ease(d3.easeLinear)
+        .attr("stroke-width", 0)
+        .attr("stroke-dashoffset", 0);
+
     })
 
     // Both methods below work fine:
@@ -73,26 +127,27 @@ class LineChart3 extends React.Component {
   }
 
   componentDidUpdate() {
-    let line = d3.selectAll("#line");
-    var totalLength = line.node().getTotalLength();
-    console.log(totalLength);
-    line
-      .attr("stroke-dasharray", totalLength)
-      .attr("stroke-dashoffset", totalLength)
-      .attr("stroke-width", 6)
-      .attr("stroke", "#6788ad")
-      .transition()
-      .duration(3000)
-      .attr("stroke-width", 0)
-      .attr("stroke-dashoffset", 0);
+    // let line = d3.selectAll("#line");
+    // var totalLength = line.node().getTotalLength();
+    // console.log(totalLength);
+    // line
+    //   .attr("stroke-dasharray", totalLength)
+    //   .attr("stroke-dashoffset", totalLength)
+    //   .attr("stroke-width", 6)
+    //   .attr("stroke", "#6788ad")
+    //   .transition()
+    //   .duration(1000)
+    //   .ease(d3.easeLinear)
+    //   .attr("stroke-width", 0)
+    //   .attr("stroke-dashoffset", 0);
 
-    let area = d3.selectAll("#area");
+    // let area = d3.selectAll("#area");
 
-    area
-      .attr("transform", "translate(0, 300)")
-      .transition()
-      .duration(3000)
-      .attr("transform", "translate(0,0)");
+    // area
+    //   .attr("transform", "translate(0, 300)")
+    //   .transition()
+    //   .duration(3000)
+    //   .attr("transform", "translate(0,0)");
   }
 
   render() {
@@ -136,22 +191,22 @@ class LineChart3 extends React.Component {
         return y(d.price);
       });
 
-    var area = d3
-      .area()
-      .x(function(d) {
-        return x(d.date);
-      })
-      .y0(function(d) {
-        return maxY;
-      })
-      .y1(function(d) {
-        return y(d.price);
-      });
+    // var area = d3
+    //   .area()
+    //   .x(function(d) {
+    //     return x(d.date);
+    //   })
+    //   .y0(function(d) {
+    //     return maxY;
+    //   })
+    //   .y1(function(d) {
+    //     return y(d.price);
+    //   });
 
     return (
       <div style={boxStyles}>
 
-        <div className="stockInfo">
+        {/*<div className="stockInfo">
           <h1><p>{TEXT[0]} ({TEXT[1]}) <small>sector: {TEXT[2]}</small></p></h1>
           <div className="rightInfo col-xs-6">
             <h3>open: ${NUMERIC.open}</h3>
@@ -163,7 +218,8 @@ class LineChart3 extends React.Component {
             <h3>volume: {NUMERIC.totalVol}</h3>
             <small>last update: {NUMERIC.date} ({NUMERIC.alert})</small>
           </div>
-        </div>
+        </div>*/}
+
         <svg height={height} width={width}>
           <defs>
             <linearGradient id="MyGradient">
@@ -179,14 +235,24 @@ class LineChart3 extends React.Component {
               fill={"transparent"}
               stroke={"transparent"}
             />
-            <path
+            {/* <path
               id={"area"}
               d={area(data)}
               fill={"url(#MyGradient)"}
               style={{ opacity: 0.8 }}
-            />
+            /> */}
           </g>
         </svg>
+        <div className="select">
+          <form>
+            {
+              this.props.securities 
+                ? this.props.renderSecuritiesOptions()
+                : <div>waiting on Data</div> 
+            }
+            { this.props.renderTimeOptions() }
+          </form>
+        </div>
       </div>
     );
   }
