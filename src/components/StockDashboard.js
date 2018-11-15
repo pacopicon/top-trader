@@ -3,6 +3,7 @@ import '../styles/StockDashboard.css'
 import LineChart from './LineChart'
 import LineChart2 from './LineChart2'
 import LineChart3 from './LineChart3'
+import LineChart4 from './LineChart4'
 import { getSecuritiesInfo } from '../helpers'
 // import { timeParse, timeFormat } from 'd3-time-format'
 import callDatePriceAPI from './APIcall'
@@ -16,6 +17,7 @@ class StockDashboard extends Component {
   constructor() {
     super()
     this.state = {
+      isFetchingAPI: false,
       isFinDataHere: false,
       body_width: document.body.clientWidth * widMod,
       securities: getSecuritiesInfo(),
@@ -34,6 +36,7 @@ class StockDashboard extends Component {
     this.handleSymbolSelection = this.handleSymbolSelection.bind(this)
     this.handleTimeScaleSelection = this.handleTimeScaleSelection.bind(this)
     this.updateData = this.updateData.bind(this)
+    this.checkIfItsFetching = this.checkIfItsFetching.bind(this)
     window.addEventListener("resize", this.resize().bind(this));
     // this.callSecuritiesInfoAPI = this.callSecuritiesInfoAPI.bind(this)
     // callDatePriceAPI(1, 'MMM', this.updateData)
@@ -107,7 +110,7 @@ class StockDashboard extends Component {
       TEXT: ['MMM','3M Company', 'Industrials'],
       timeScale: 1
     }, () => {
-      callDatePriceAPI(this.state.timeScale, this.state.TEXT[0], this.updateData)
+      callDatePriceAPI(this.state.timeScale, this.state.TEXT[0], this.updateData,this.checkIfItsFetching)
     })
   }
 
@@ -125,7 +128,7 @@ class StockDashboard extends Component {
   //     TEXT: ['MMM','3M Company', 'Industrials'],
   //     timeScale: 1
   //   }, () => {
-  //     callDatePriceAPI(this.state.timeScale, this.state.TEXT[0], this.updateData)
+  //     callDatePriceAPI(this.state.timeScale, this.state.TEXT[0], this.updateData, this.checkIfItsFetching)
   //   })
   // }
 
@@ -138,7 +141,7 @@ class StockDashboard extends Component {
   //     newTimeScale = nextState.timeScale
 
   //   if (oldSymbol != newSymbol) {
-  //     callDatePriceAPI(newTimeScale, newSymbol, this.updateData)
+  //     callDatePriceAPI(newTimeScale, newSymbol, this.updateData, this.checkIfItsFetching)
   //   }
   // }
 
@@ -189,25 +192,28 @@ class StockDashboard extends Component {
     }, () => {
       let { timeScale, TEXT } = this.state
       if (timeScale && TEXT) {
-        callDatePriceAPI(timeScale, TEXT[0], this.updateData)
+        callDatePriceAPI(timeScale, TEXT[0], this.updateData, this.checkIfItsFetching)
       }
     })
   }
 
-  handleTimeScaleSelection(event) {
-    const { TEXT, timeScales, timeScale } = this.state
-    let modifier = timeScales[event.target.value]
-    console.log("handleTimeScaleSelection modifier = ", modifier);
-    console.log("typeof modifier = ", typeof modifier);
+  handleTimeScaleSelection(e) {
+    const { TEXT } = this.state
     // this.changeChartParams(security, modifier)
     this.setState({
       TEXT: TEXT,
-      timeScale: modifier
+      timeScale: e.target.value
     }, () => {
       let { timeScale, TEXT } = this.state
       if (timeScale && TEXT) {
-        callDatePriceAPI(timeScale, TEXT[0], this.updateData)
+        callDatePriceAPI(timeScale, TEXT[0], this.updateData, this.checkIfItsFetching)
       }
+    })
+  }
+
+  checkIfItsFetching(isFetchingAPI) {
+    this.setState({
+      isFetchingAPI
     })
   }
 
@@ -228,6 +234,7 @@ class StockDashboard extends Component {
                 timeScale={this.state.timeScale}
                 timeScales={this.state.timeScales}
                 securities={this.state.securities}
+                isFetchingAPI={this.state.isFetchingAPI}
                 renderSecuritiesOptions={this.renderSecuritiesOptions}
                 renderTimeOptions={this.renderTimeOptions}
                 handleSymbolSelection={this.handleSymbolSelection}
@@ -243,7 +250,7 @@ class StockDashboard extends Component {
             </div>
           : ''
         */}
-        {
+        {/* {
           this.state.isFinDataHere 
           ? <div className="LineChartContainer">
               <LineChart3 
@@ -252,6 +259,25 @@ class StockDashboard extends Component {
                 TEXT={this.state.TEXT}
                 NUMERIC={this.state.NUMERIC}
                 securities={this.state.securities}
+                isFetchingAPI={this.state.isFetchingAPI}
+                renderSecuritiesOptions={this.renderSecuritiesOptions}
+                renderTimeOptions={this.renderTimeOptions}
+                handleSymbolSelection={this.handleSymbolSelection}
+                handleTimeScaleSelection={this.handleTimeScaleSelection}
+              />
+            </div>
+          : ''
+        } */}
+        {
+          this.state.GRAPHIC.length>0 
+          ? <div className="LineChartContainer">
+              <LineChart4 
+                data={this.state.GRAPHIC}
+                GRAPHIC={this.state.GRAPHIC}
+                TEXT={this.state.TEXT}
+                NUMERIC={this.state.NUMERIC}
+                securities={this.state.securities}
+                isFetchingAPI={this.state.isFetchingAPI}
                 renderSecuritiesOptions={this.renderSecuritiesOptions}
                 renderTimeOptions={this.renderTimeOptions}
                 handleSymbolSelection={this.handleSymbolSelection}

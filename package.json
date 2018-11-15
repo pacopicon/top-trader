@@ -21,6 +21,7 @@
     "react-dom": "^16.5.2",
     "react-faux-dom": "4.2.0",
     "react-transition-group": "^2.2.1",
+    "semiotic": "^1.15.8",
     "whatwg-fetch": "^2.0.3"
   },
   "devDependencies": {

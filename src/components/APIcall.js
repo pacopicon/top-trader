@@ -72,12 +72,17 @@ const checkDate = (dateArray, priceArray, timeScale) => {
   return newArrays
 }
 
-const callDatePriceAPI = (timeScale, symbol, callback) => {
-  let http = ''
+const callDatePriceAPI = (timeScale, symbol, callback, checkIfItsFetching) => {
+  console.log('timeScale = ', timeScale)
+  checkIfItsFetching(true)
+  let 
+    http = '',
+    ops1 = 'full',
+    ops2 = 'compact'
   if (timeScale === 1) {
-    http = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=1min&outputsize=full&apikey=5JSEEXSISXT9VKNO`
+    http = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=1min&outputsize=${ops1}&apikey=5JSEEXSISXT9VKNO`
   } else {
-    http = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=full&apikey=5JSEEXSISXT9VKNO`
+    http = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=${ops1}&apikey=5JSEEXSISXT9VKNO`
   }
 
   fetch(http)
@@ -103,6 +108,8 @@ const callDatePriceAPI = (timeScale, symbol, callback) => {
       f = checkDate(dateArr, priceArr, timeScale) // f = filtered
       timeString = '%Y-%m-%d'
     }
+
+    console.log('f = ', f)
     let 
       dataScope  = f.dateArr.length,
       dateArray  = f.dateArr,
@@ -155,6 +162,7 @@ const callDatePriceAPI = (timeScale, symbol, callback) => {
 
      // callback is an this.setState fn
      callback(datePrice, latestData, data, true)
+     checkIfItsFetching(false)
   })
   .catch(error => {
     console.log('callDatePriceAPI json parsing failed: ', error)
@@ -187,6 +195,7 @@ const callDatePriceAPI = (timeScale, symbol, callback) => {
       }
 
     callback({ "Meta Data":{},"Time Series (Daily)":{} }, latestData, [0,0,0,0,0], true)
+    checkIfItsFetching(false)
   })
 }
 
