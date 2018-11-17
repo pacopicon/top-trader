@@ -20,52 +20,100 @@ class LineChart5 extends React.Component {
   svgRef = React.createRef()
 
   componentWillReceiveProps(nextProps) {
+    // let 
+    //   oldData = this.props.data,
+    //   newData = nextProps.data
+    
+    // if (oldData != newData) {
+    //   let { 
+    //     data,
+    //     NUMERIC,
+    //     TEXT
+    //   } = nextProps
+
+    //   this.setState({
+    //     data,
+    //     NUMERIC,
+    //     TEXT
+    //   }, () => {
+
+    //     let 
+    //       { data }  = this.state,
+    //       height    = 300,
+    //       width     = 500,
+    //       minX      = d3.min(data.map(o => o.date)),
+    //       maxX      = d3.max(data.map(o => o.date)),
+    //       minY      = d3.min(data.map(o => o.price)),
+    //       maxY      = d3.max(data.map(o => o.price)),
+    //       x         = d3.scaleLinear().domain([minX, maxX]).range([0, width]),
+    //       y         = d3.scaleLinear().domain([minY, maxY]).range([height, height / 3]),
+    //       lineDraw  = d3.line().x(function(d) {
+    //                     return x(d.date)
+    //                   })
+    //                   .y(function(d) {
+    //                     return y(d.price)
+    //                   }),
+    //       // line      = d3.selectAll("#line"),
+    //     // totalLength = line.node().getTotalLength(),
+    //     // console.log(totalLength);
+    //       // svg = d3.select(".svg").transition()
+    //       svg = d3.select(this.svgRef.current)
+    //     svg.select("#line")
+    //       .transition()
+    //       .duration(3000)
+    //       .ease(d3.easeLinear)
+    //       // .attr("stroke-width", 6)
+    //       // .attr("stroke", "#6788ad")
+    //       .attr("d", lineDraw(data))
+    //       // .on("end", () => {
+    //       //   this.setState({
+    //       //     data
+    //       //   })
+    //       // })
+          
+
+    //   })
+      
+    // }
+
     let 
       oldData = this.props.data,
-      newData = nextProps.data
+      data = nextProps.data
     
-    if (oldData != newData) {
-      let { 
-        data,
-        NUMERIC,
-        TEXT
-      } = nextProps
+    if (oldData != data) {
+      let 
+        height    = 300,
+        width     = 500,
+        minX      = d3.min(data.map(o => o.date)),
+        maxX      = d3.max(data.map(o => o.date)),
+        minY      = d3.min(data.map(o => o.price)),
+        maxY      = d3.max(data.map(o => o.price)),
+        x         = d3.scaleLinear().domain([minX, maxX]).range([0, width]),
+        y         = d3.scaleLinear().domain([minY, maxY]).range([height, height / 3]),
+        lineDraw  = d3.line().x(function(d) {
+                      return x(d.date)
+                    })
+                    .y(function(d) {
+                      return y(d.price)
+                    }),
+        line      = d3.selectAll("#line")
+      // totalLength = line.node().getTotalLength(),
+      // console.log(totalLength);
+        // svg = d3.select(".svg").transition()
+        // svg = d3.select(this.svgRef.current)
+      // svg.select("#line")
 
-      this.setState({
-        data,
-        NUMERIC,
-        TEXT
-      }, () => {
-
-        let 
-          { data }  = this.state,
-          height    = 300,
-          width     = 500,
-          minX      = d3.min(data.map(o => o.date)),
-          maxX      = d3.max(data.map(o => o.date)),
-          minY      = d3.min(data.map(o => o.price)),
-          maxY      = d3.max(data.map(o => o.price)),
-          x         = d3.scaleLinear().domain([minX, maxX]).range([0, width]),
-          y         = d3.scaleLinear().domain([minY, maxY]).range([height, height / 3]),
-          lineDraw  = d3.line().x(function(d) {
-                        return x(d.date)
-                      })
-                      .y(function(d) {
-                        return y(d.price)
-                      }),
-          // line      = d3.selectAll("#line"),
-        // totalLength = line.node().getTotalLength(),
-        // console.log(totalLength);
-          // svg = d3.select(".svg").transition()
-          svg = d3.select(this.svgRef.current).transition()
-        svg.select("#line")
-          // .attr("stroke-width", 6)
-          // .attr("stroke", "#6788ad")
-          .duration(1000)
-          .attr("d", lineDraw(data))
-          .ease(d3.easeLinear)
-
-      })
+        line.transition()
+        .duration(3000)
+        .ease(d3.easeLinear)
+        // .attr("stroke-width", 6)
+        // .attr("stroke", "#6788ad")
+        .attr("d", lineDraw(data))
+        .on("end", () => 
+          this.setState({
+            data: nextProps.data
+          })
+        )
       
     }
   }
@@ -125,54 +173,39 @@ class LineChart5 extends React.Component {
   }
 
   componentDidUpdate() {
-    let 
-      oldData = this.props.data,
-      newData = nextProps.data
+    // let 
+    //   { 
+    //     data,
+    //     NUMERIC,
+    //     TEXT 
+    //   }         = this.state,
+    //   height    = 300,
+    //   width     = 500,
+    //   minX      = d3.min(data.map(o => o.date)),
+    //   maxX      = d3.max(data.map(o => o.date)),
+    //   minY      = d3.min(data.map(o => o.price)),
+    //   maxY      = d3.max(data.map(o => o.price)),
+    //   x         = d3.scaleLinear().domain([minX, maxX]).range([0, width]),
+    //   y         = d3.scaleLinear().domain([minY, maxY]).range([height, height / 3]),
+    //   lineDraw  = d3.line().x(function(d) {
+    //                 return x(d.date)
+    //               })
+    //               .y(function(d) {
+    //                 return y(d.price)
+    //               }),
+    //   // line      = d3.selectAll("#line"),
+    // // totalLength = line.node().getTotalLength(),
+    // // console.log(totalLength);
+    //   // svg = d3.select(".svg").transition()
+    //   svg = d3.select(this.svgRef.current)
     
-    if (oldData != newData) {
-      let { 
-        data,
-        NUMERIC,
-        TEXT
-      } = nextProps
-
-      this.setState({
-        data,
-        NUMERIC,
-        TEXT
-      }, () => {
-
-        let 
-          { data }  = this.state,
-          height    = 300,
-          width     = 500,
-          minX      = d3.min(data.map(o => o.date)),
-          maxX      = d3.max(data.map(o => o.date)),
-          minY      = d3.min(data.map(o => o.price)),
-          maxY      = d3.max(data.map(o => o.price)),
-          x         = d3.scaleLinear().domain([minX, maxX]).range([0, width]),
-          y         = d3.scaleLinear().domain([minY, maxY]).range([height, height / 3]),
-          lineDraw  = d3.line().x(function(d) {
-                        return x(d.date)
-                      })
-                      .y(function(d) {
-                        return y(d.price)
-                      }),
-          // line      = d3.selectAll("#line"),
-        // totalLength = line.node().getTotalLength(),
-        // console.log(totalLength);
-          // svg = d3.select(".svg").transition()
-          svg = d3.select(this.svgRef.current).transition()
-        svg.select("#line")
-          // .attr("stroke-width", 6)
-          // .attr("stroke", "#6788ad")
-          .duration(1000)
-          .attr("d", lineDraw(data))
-          .ease(d3.easeLinear)
-
-      })
-      
-    }
+    // svg.select("#line")
+    //   .transition()
+    //   // .attr("stroke-width", 6)
+    //   // .attr("stroke", "#6788ad")
+    //   .duration(1000)
+    //   .attr("d", lineDraw(data))
+    //   .ease(d3.easeLinear)
   }
 
   render() {
