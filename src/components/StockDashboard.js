@@ -4,9 +4,12 @@ import LineChart from './LineChart'
 import LineChart2 from './LineChart2'
 import LineChart3 from './LineChart3'
 import LineChart4 from './LineChart4'
+import LineChart5 from './LineChart5'
+import BouncingBall from './BouncingBall'
 import { getSecuritiesInfo } from '../helpers'
 // import { timeParse, timeFormat } from 'd3-time-format'
-import callDatePriceAPI from './APIcall'
+// import callDatePriceAPI from './APIcall'
+import integrateData from './APIcall2'
 // import { callSecuritiesInfoAPI } from '../securitiesHelper';
 // import { tradeData, mcrsft } from '../JSONdata';
 // import { microsoft } from '../ApiCalls';
@@ -18,17 +21,29 @@ class StockDashboard extends Component {
     super()
     this.state = {
       isFetchingAPI: false,
-      isFinDataHere: false,
       body_width: document.body.clientWidth * widMod,
       securities: getSecuritiesInfo(),
       security: 'MMM',
       timeScales: {'1D':1, '1W':8, '1M':32, '3M':(94), '6M':(187), '1Y':(366), '2Y':(731)},
-      timeScale: '',
-      // TEXT: ['MMM','3M Company', 'Industrials'],
+      timeScaleArr: [1, 8, 32, 94, 187, 366, 731],
+      timeScale: 1,
       TEXT: '',
-      NUMERIC: [new Date(), 0, 0, 0, 0, 0, 0],
-      data: [0,0,0,0,0],
-      GRAPHIC: { "Meta Data":{},"Time Series (Daily)":{} }
+      datePrice1: '',
+      closeData1: '',
+      datePrice8: '',
+      closeData8: '',
+      datePrice32: '',
+      closeData32: '',
+      datePrice94: '',
+      closeData94: '',
+      datePrice187: '',
+      closeData187: '',
+      datePrice366: '',
+      closeData366: '',
+      datePrice731: '',
+      closeData731: '',
+      currPrice: '',
+      currClose: ''
     }
 
     this.renderSecuritiesOptions = this.renderSecuritiesOptions.bind(this)
@@ -96,21 +111,39 @@ class StockDashboard extends Component {
   //   })
   // }
 
-  updateData(datePrice, latestData, data, boolean) {
+  updateData(datum) {
+    console.log('datum in update callback = ', datum)
+
+    let i = this.state.timeScaleArr.indexOf(this.state.timeScale)
+
+    let 
+      currPrice = datum[i].datePrice,
+      currClose = datum[i].closeData
     this.setState({
-      GRAPHIC: datePrice,
-      NUMERIC: latestData,
-      data: data,
-      isFinDataHere: boolean
+      datePrice1: datum[0].datePrice,
+      closeData1: datum[0].closeData,
+      datePrice8: datum[1].datePrice,
+      closeData8: datum[1].closeData,
+      datePrice32: datum[2].datePrice,
+      closeData32: datum[2].closeData,
+      datePrice94: datum[3].datePrice,
+      closeData94: datum[3].closeData,
+      datePrice187: datum[4].datePrice,
+      closeData187: datum[4].closeData,
+      datePrice366: datum[5].datePrice,
+      closeData366: datum[5].closeData,
+      datePrice731: datum[6].datePrice,
+      closeData731: datum[6].closeData,
+      currPrice,
+      currClose
      })
   }
 
   componentDidMount() {
     this.setState({
-      TEXT: ['MMM','3M Company', 'Industrials'],
-      timeScale: 1
+      TEXT: ['MMM','3M Company', 'Industrials']
     }, () => {
-      callDatePriceAPI(this.state.timeScale, this.state.TEXT[0], this.updateData,this.checkIfItsFetching)
+      integrateData(this.state.TEXT[0], this.updateData,this.checkIfItsFetching)
     })
   }
 
@@ -190,25 +223,20 @@ class StockDashboard extends Component {
       TEXT: securityArray,
       timeScale: timeScale
     }, () => {
-      let { timeScale, TEXT } = this.state
-      if (timeScale && TEXT) {
-        callDatePriceAPI(timeScale, TEXT[0], this.updateData, this.checkIfItsFetching)
+      let { TEXT } = this.state
+      if (TEXT) {
+        integrateData(this.state.TEXT[0], this.updateData,this.checkIfItsFetching)
       }
     })
   }
 
   handleTimeScaleSelection(e) {
-    const { TEXT } = this.state
-    // this.changeChartParams(security, modifier)
+    let num = e.target.value
+    
     this.setState({
-      TEXT: TEXT,
-      timeScale: e.target.value
-    }, () => {
-      let { timeScale, TEXT } = this.state
-      if (timeScale && TEXT) {
-        callDatePriceAPI(timeScale, TEXT[0], this.updateData, this.checkIfItsFetching)
-      }
-    })
+      currPrice: this.state[`datePrice${num}`],
+      currClose: this.state[`closeData${num}`]
+     })
   }
 
   checkIfItsFetching(isFetchingAPI) {
@@ -268,7 +296,7 @@ class StockDashboard extends Component {
             </div>
           : ''
         } */}
-        {
+        {/* {
           this.state.GRAPHIC.length>0 
           ? <div className="LineChartContainer">
               <LineChart4 
@@ -285,7 +313,25 @@ class StockDashboard extends Component {
               />
             </div>
           : ''
+        } */}
+        {
+          this.state.currPrice.length>0 
+          ? <div className="LineChartContainer">
+              <LineChart5 
+                data={this.state.currPrice}
+                TEXT={this.state.TEXT}
+                NUMERIC={this.state.NUMERIC}
+                securities={this.state.securities}
+                isFetchingAPI={this.state.isFetchingAPI}
+                renderSecuritiesOptions={this.renderSecuritiesOptions}
+                renderTimeOptions={this.renderTimeOptions}
+                handleSymbolSelection={this.handleSymbolSelection}
+                handleTimeScaleSelection={this.handleTimeScaleSelection}
+              />
+            </div>
+          : ''
         }
+        <BouncingBall />
       </div>
     )
   }

@@ -91,15 +91,14 @@ const parseData = (json, timeScale) => {
   }
 
   let 
-    dataScope  = f.dateArr.length,
     dateArray  = f.dateArr,
     priceArray = f.priceArr,
     parseTime  = timeParse(timeString),
-    datePrice  = [],
     lowHigh    = [],
-    volArr     = []
-
-  for (let i=0; i<dataScope; i++) {
+    volArr     = [],
+    datePrice  = []
+    
+  for (let i=0; i<dateArray.length; i++) {
     let dyad = {
       date: parseTime(dateArray[i]),
       price: Array.isArray(priceArray) ? Number(priceArray[i][3]) : 0
@@ -108,97 +107,95 @@ const parseData = (json, timeScale) => {
     lowHigh.push(Number(priceArray[i][1]))
     lowHigh.push(Number(priceArray[i][2]))
     volArr.push(Number(priceArray[i][4]))
-  }
-
-  let 
+  } 
+  
+  lowHigh.sort((a,b) => a - b)
+  
+  this.getSum = (total,num) => total + num
+  let
     date          = parseTime(dateArray[0]),
     formatTime    = timeFormat("%b %d, %Y at %I:%M:%S %p"),
     formattedDate = formatTime(date),
     dateStr       = formattedDate.toString(),
-    alert         = parseTime(formattedDate) < new Date ? 'market is closed' : 'up to date'
-  
-  lowHigh.sort((a,b) => a - b)
-    
-  let
-    highest = lowHigh[lowHigh.length-1],
-    lowest = lowHigh[0]
-  
-  this.getSum = (total,num) => total + num
-  let totalVol = volArr.reduce(this.getSum)
+    alert         = parseTime(formattedDate) < new Date ? 'market is closed' : 'up to date',
+    highest       = lowHigh[lowHigh.length-1],
+    lowest        = lowHigh[0], 
+    totalVol      = volArr.reduce(this.getSum),
+    closeData     = {
+                      date: dateStr,
+                      open: Number(priceArray[datePrice.length-1][0]),
+                      high: highest,
+                      low: lowest,
+                      close: Number(priceArray[0][3]),
+                      // volume: Number(priceArray[0][4]),
+                      totalVol: totalVol,
+                      alert: alert
+                    }
 
-  let latestData = {
-    date: dateStr,
-    open: Number(priceArray[datePrice.length-1][0]),
-    high: highest,
-    low: lowest,
-    close: Number(priceArray[0][3]),
-    // volume: Number(priceArray[0][4]),
-    totalVol: totalVol,
-    alert: alert
-  }
-
-  let data = [
-    Number(priceArray[datePrice.length-1][0]), highest, lowest, Number(priceArray[0][3]), totalVol ]
-
-    // callback is an this.setState fn
     return {
-      datePrice, 
-      latestData, 
-      data
+      datePrice,
+      closeData,
+      timeScale
     }
-  
 }
 
-const iterateAndParseData = (symbol, checkIfItsFetching, callback) => {
+const packageData = (data, datum) => {
+  let 
+    keys   = Object.keys(data),
+    output = []
+
+  output.push(datum)
+  for (let i=0; i<keys.length; i++) {
+    let key = keys[i]
+    output.push(data[key])
+  }
+  return output
+}
+
+const integrateData = async (symbol, callback, checkIfItsFetching) => {
   checkIfItsFetching(true)
 
-  let 
-    timeScales = [1, 8, 32, 94, 187, 366, 731],
-    data = [],
-    datum = ''
-
-  for (let i=0; i<timeScales.length; i++) {
-    datum = callAndStoreData(timeScales[i], symbol)
-    data.push(datum)
-  }
-
-  callback(data)
-  checkIfItsFetching(false)
+  let
+    http1  = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=1min&outputsize=full&apikey=5JSEEXSISXT9VKNO`,
+    http2  = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=full&apikey=5JSEEXSISXT9VKNO`
+    
+    await fetchData(http1, true, async (datum) => {
+      await fetchData(http2, false, (data) => {
+        let output = packageData(data, datum)
+        callback(output)
+        checkIfItsFetching(false)
+      })
+    })
 }
 
-const callAndStoreData = (timeScale, symbol) => {
-  if (!window.sessionStorage.symbol || window.sessionStorage.symbol != symbol) {
-    let http = ''
-
-    window.sessionStorage.clear()
-
-    if (timeScale === 1) {
-      http = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=1min&outputsize=full&apikey=5JSEEXSISXT9VKNO`
-    } else {
-      http = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=full&apikey=5JSEEXSISXT9VKNO`
-    }
-
+const fetchData = (http, isIntraday, callback) => {
+  try {
     fetch(http)
     .then(response => {
       return response.json()
     })
     .then(json => {
-      console.log('callDatePriceAPI json parsing SUCCEEDED!!!')
-      window.sessionStorage.symbol = symbol
-      window.sessionStorage[`${timeScale}_${}`] = json
-      let datum = parseData(json, timeScale)
-      return datum
-      
+      let output = ''
+
+      if (isIntraday) {
+        output = parseData(json, 1)
+      } else {
+        let timeScales = [8, 32, 94, 187, 366, 731]
+        output = []
+        for (let i=0; i<timeScales.length; i++) {
+          output.push(parseData(json, timeScales[i]))
+        }
+      }
+      callback(output)
     })
     .catch(err => {
-      console.log('Error pulling data from API: ', err)
+      console.log('Error pulling closeData from API: ', err)
+      return null
     })
-  } else {
-    let 
-      json  = window.sessionStorage[timeScale.toString()],
-      datum = parseData(json, timeScale)
-    return datum
+  }
+  catch (err) {
+    console.log('error calling api: ', err)
   }
 }
 
-export default callAndStoreData
+export default integrateData
