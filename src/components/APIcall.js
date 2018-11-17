@@ -74,6 +74,7 @@ const checkDate = (dateArray, priceArray, timeScale) => {
 
 const callDatePriceAPI = (timeScale, symbol, callback, checkIfItsFetching) => {
   console.log('timeScale = ', timeScale)
+
   checkIfItsFetching(true)
   let 
     http = '',
@@ -91,6 +92,12 @@ const callDatePriceAPI = (timeScale, symbol, callback, checkIfItsFetching) => {
   })
   .then(json => {
     console.log('callDatePriceAPI json parsing SUCCEEDED!!!')
+
+    window.sessionStorage.setItem('data', json)
+
+    console.log(`window.sessionStorage.getItem('data') =`)
+    console.dir(window.sessionStorage.getItem('data'))
+
 
     // API IntraDay can be imperfect, and some minutes are left out, need to check that previous trading day time isn't included
   

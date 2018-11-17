@@ -99,7 +99,7 @@ class LineChart4 extends React.Component {
               title={ `Meek's XYFrame` }
               points={data}
               size={ [500,500] }
-              pointStyle={{ fill: "blue" }}
+              pointStyle={{ fill: "#3b83d4" }}
               xAccessor={d => d.date}
               yAccessor={d => d.price}
               xScaleType={ d3.scaleTime() }
