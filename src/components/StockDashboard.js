@@ -331,7 +331,7 @@ class StockDashboard extends Component {
             </div>
           : ''
         }
-        <BouncingBall />
+        {/* <BouncingBall /> */}
       </div>
     )
   }

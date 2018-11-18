@@ -17,65 +17,7 @@ class LineChart5 extends React.Component {
     };
   }
 
-  svgRef = React.createRef()
-
   componentWillReceiveProps(nextProps) {
-    // let 
-    //   oldData = this.props.data,
-    //   newData = nextProps.data
-    
-    // if (oldData != newData) {
-    //   let { 
-    //     data,
-    //     NUMERIC,
-    //     TEXT
-    //   } = nextProps
-
-    //   this.setState({
-    //     data,
-    //     NUMERIC,
-    //     TEXT
-    //   }, () => {
-
-    //     let 
-    //       { data }  = this.state,
-    //       height    = 300,
-    //       width     = 500,
-    //       minX      = d3.min(data.map(o => o.date)),
-    //       maxX      = d3.max(data.map(o => o.date)),
-    //       minY      = d3.min(data.map(o => o.price)),
-    //       maxY      = d3.max(data.map(o => o.price)),
-    //       x         = d3.scaleLinear().domain([minX, maxX]).range([0, width]),
-    //       y         = d3.scaleLinear().domain([minY, maxY]).range([height, height / 3]),
-    //       lineDraw  = d3.line().x(function(d) {
-    //                     return x(d.date)
-    //                   })
-    //                   .y(function(d) {
-    //                     return y(d.price)
-    //                   }),
-    //       // line      = d3.selectAll("#line"),
-    //     // totalLength = line.node().getTotalLength(),
-    //     // console.log(totalLength);
-    //       // svg = d3.select(".svg").transition()
-    //       svg = d3.select(this.svgRef.current)
-    //     svg.select("#line")
-    //       .transition()
-    //       .duration(3000)
-    //       .ease(d3.easeLinear)
-    //       // .attr("stroke-width", 6)
-    //       // .attr("stroke", "#6788ad")
-    //       .attr("d", lineDraw(data))
-    //       // .on("end", () => {
-    //       //   this.setState({
-    //       //     data
-    //       //   })
-    //       // })
-          
-
-    //   })
-      
-    // }
-
     let 
       oldData = this.props.data,
       data = nextProps.data
@@ -96,22 +38,27 @@ class LineChart5 extends React.Component {
                     .y(function(d) {
                       return y(d.price)
                     }),
-        line      = d3.selectAll("#line")
-      // totalLength = line.node().getTotalLength(),
-      // console.log(totalLength);
-        // svg = d3.select(".svg").transition()
-        // svg = d3.select(this.svgRef.current)
-      // svg.select("#line")
+        line      = d3.selectAll("#line") // WORKS!!!
 
-        line.transition()
-        .duration(3000)
+      // let svg = d3.select(".svg").transition() // pattern # 1 -> DOES NOT WORK
+      //  let svg = d3.select(this.svgRef.current) // pattern # 2 -> DOES NOT WORK
+      //   |--> svgRef = React.createRef()
+      //   |--> <svg className="svg" ref={this.svgRef} height={height} width={width}>
+      //  let svg = d3.select(".svg") // pattern # 3 -> DOES NOT WORK
+      // svg.select("#line") // pattern # 1,2,3 -> DOES NOT WORK
+
+        
+        // svg.transition() // pattern # 1,2 -> DOES NOT WORK
+        // svg // pattern # 3 -> DOES NOT WORK
+        line.transition() // WORKS!!!
+        .duration(1000)
         .ease(d3.easeLinear)
         // .attr("stroke-width", 6)
         // .attr("stroke", "#6788ad")
         .attr("d", lineDraw(data))
         .on("end", () => 
           this.setState({
-            data: nextProps.data
+            data
           })
         )
       
@@ -119,18 +66,7 @@ class LineChart5 extends React.Component {
   }
 
   componentDidMount() {
-    // fetch(
-    //   "https://min-api.cryptocompare.com/data/histominute?fsym=BTC&tsym=USD&limit=60&aggregate=3&e=CCCAGG"
-    // )
-    //   .then(res => res.json())
-    //   .then(res =>
-    //     this.setState({
-    //       data: res.Data
-    //     })
-    //   );
-
-    // (0) This also works!!!!
-    let { 
+    let {
           data,
           NUMERIC,
           TEXT
@@ -151,61 +87,12 @@ class LineChart5 extends React.Component {
         .attr("stroke-width", 6)
         .attr("stroke", "#6788ad")
         .transition()
-        .duration(1000)
+        .duration(500)
         .ease(d3.easeLinear)
         .attr("stroke-width", 0)
         .attr("stroke-dashoffset", 0);
 
     })
-
-    // Both methods below work fine:
-
-    // (1)
-    // this.setState({
-    //   TEXT: ['MMM','3M Company', 'Industrials'],
-    //   timeScale: 1
-    // }, () => {
-    //   iterateAndParseData(this.state.TEXT[0], this.updateData,this.checkIfItsFetching)
-    // })
-
-    // (2)
-    // iterateAndParseData(this.state.TEXT[0], this.updateData,this.checkIfItsFetching)
-  }
-
-  componentDidUpdate() {
-    // let 
-    //   { 
-    //     data,
-    //     NUMERIC,
-    //     TEXT 
-    //   }         = this.state,
-    //   height    = 300,
-    //   width     = 500,
-    //   minX      = d3.min(data.map(o => o.date)),
-    //   maxX      = d3.max(data.map(o => o.date)),
-    //   minY      = d3.min(data.map(o => o.price)),
-    //   maxY      = d3.max(data.map(o => o.price)),
-    //   x         = d3.scaleLinear().domain([minX, maxX]).range([0, width]),
-    //   y         = d3.scaleLinear().domain([minY, maxY]).range([height, height / 3]),
-    //   lineDraw  = d3.line().x(function(d) {
-    //                 return x(d.date)
-    //               })
-    //               .y(function(d) {
-    //                 return y(d.price)
-    //               }),
-    //   // line      = d3.selectAll("#line"),
-    // // totalLength = line.node().getTotalLength(),
-    // // console.log(totalLength);
-    //   // svg = d3.select(".svg").transition()
-    //   svg = d3.select(this.svgRef.current)
-    
-    // svg.select("#line")
-    //   .transition()
-    //   // .attr("stroke-width", 6)
-    //   // .attr("stroke", "#6788ad")
-    //   .duration(1000)
-    //   .attr("d", lineDraw(data))
-    //   .ease(d3.easeLinear)
   }
 
   render() {
@@ -278,7 +165,7 @@ class LineChart5 extends React.Component {
           </div>
         </div>*/}
 
-        <svg className="svg" ref={this.svgRef} height={height} width={width}>
+        <svg className="svg" height={height} width={width}>
           <defs>
             <linearGradient id="MyGradient">
               <stop offset="-10%" stopColor="#3b83d4" />
